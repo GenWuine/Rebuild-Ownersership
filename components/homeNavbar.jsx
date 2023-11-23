@@ -1,5 +1,3 @@
-
-
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import Logo from "../assets/image/logo.png";
@@ -38,17 +36,17 @@ export function HomeNavbar() {
                                 alt="FlowBite Logo"
                             />
                             <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">
-                                Linko
+                                GenWuin
                             </span>
                         </Link>
                     </div>
                     <div className="flex items-center">
                         <Link
                             className="hover:opacity-75 lg:pl-5 lg:pr-5"
-                            href="/app/create"
+                            href="/app/modelgen"
                         >
                             <div className="flex items-center bg-[#f5c2a5] text-black hover:bg-[rgb(80,80,80)] font-normal py-2 px-4 rounded-lg">
-                                Launch App
+                                Launch Dapp
                             </div>
                         </Link>
                     </div>
