@@ -4,17 +4,22 @@ import { Navbar } from "@/components/navbar";
 import { Sidebar } from "@/components/sidebar";
 import { useState } from "react";
 import image from "../../public/cattt.jpeg";
+import { createPosterAd } from "@/utils";
 
 export default function Home() {
     const [loading, setLoading] = useState(false);
     const [formInput, setFormInput] = useState({
         productDescription: "",
         productImage: "",
+        modelId: ""
     });
     const [imgLoading, setImgLoading] = useState(false);
 
     async function modelGen() {
         setLoading(true);
+        console.log("true")
+        await createPosterAd(formInput.modelId);
+        console.log("true")
         setLoading(false);
     }
 
@@ -103,6 +108,29 @@ export default function Home() {
                                         />
                                     </div>
                                 </div>
+
+                                <div className="flex">
+                                    <div className="w-[12%] justify-center flex-shrink-0 cursor-default z-10 inline-flex items-center py-4 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-l-lg focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700  dark:focus:ring-gray-700 dark:text-gray-400 dark:border-gray-600">
+                                        <p>ModelId</p>
+                                    </div>
+                                    <div className="relative w-full">
+                                        <input
+                                            type="search"
+                                            className="block p-4 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-r-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-l-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
+                                            placeholder="Enter your model's id"
+                                            required=""
+                                            value={formInput.modelId}
+                                            onChange={(e) => {
+                                                setFormInput({
+                                                    ...formInput,
+                                                    modelId:
+                                                        e.target.value,
+                                                });
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+
                                 <div className="flex justify-end">
                                     <button
                                         className="flex w-[14%] justify-center py-4 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
