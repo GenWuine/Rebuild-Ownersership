@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import Footer from "@/components/footer";
 import Link from "next/link";
 import { HomeNavbar } from "@/components/homeNavbar";
+import axios from "axios";
 
 const defaultOptions = {
     loop: true,
@@ -16,6 +17,21 @@ const defaultOptions = {
 
 export default function Home() {
     const router = useRouter();
+
+    async function apiCall() {
+        const payload = {
+            description: 'skinny boy'
+          };
+          
+          axios.post('https://modelgen.pythonanywhere.com/generate-model-img/', payload)
+            .then(response => {
+              console.log(response.data);
+            })
+            .catch(error => {
+              console.error('Error:', error.message);
+            });
+    }
+
     return (
         <>
             <HomeNavbar />
@@ -49,6 +65,13 @@ export default function Home() {
                                     Create a Linko
                                 </span>
                             </button>
+                            {/*  */}
+                            {/*  */}
+                            {/*  */}
+                                <button className="text-white" onClick={apiCall}>fsdsf</button>
+                            {/*  */}
+                            {/*  */}
+                            {/*  */}
                             {/* <a
               href="/developers"
               className="hero-button solid-gradient gradient-peach outlined w-full md:w-auto"
