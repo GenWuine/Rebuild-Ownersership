@@ -13,7 +13,7 @@ cors = CORS(app)
 
 
 CORS(app,resources={
-    r"/*":{"origins":"http://localhost:3000"}
+    r"/*"
 })
 app.config['CORS_HEADERS']= 'Content-Type'
 
