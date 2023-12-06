@@ -4,6 +4,7 @@ import { Navbar } from "@/components/navbar";
 import { Sidebar } from "@/components/sidebar";
 import { useState } from "react";
 import image from "../../public/cattt.jpeg";
+import axios from "axios";
 
 export default function Home() {
     const [loading, setLoading] = useState(false);
@@ -14,7 +15,24 @@ export default function Home() {
 
     async function modelGen() {
         setLoading(true);
+        console.log("true")
+        await apiCall()
+        console.log("true")
         setLoading(false);
+    }
+
+    async function apiCall() {
+        const payload = {
+            description: 'skinny boy'
+          };
+          
+          axios.post('https://modelgen.pythonanywhere.com/generate_model_img', payload)
+            .then(response => {
+              console.log(response.data);
+            })
+            .catch(error => {
+              console.error('Error:', error.message);
+            });
     }
 
     return (

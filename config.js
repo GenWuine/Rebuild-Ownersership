@@ -1,175 +1,42 @@
 const mumbaiAddress = `0x3877f5823B2a0762Bec527d5d0D68b9cd8449cFB`
-const hyperspaceAddress = `0xBa55f5cA3bdbd34e0996775Ac3CE1C1d6E7a08f7`
+const fujiAddress = ``
 
-export const contractAddress = hyperspaceAddress
+export const registryAddress = mumbaiAddress
 
-const nftMumbaiAddress = `0x31544EC35067c36F53ed3f5a9De1832E890Ad3c2`
-const nftHyperspaceAddress = `0x6DE3E2C4C564F3043387171965471520595255e8`
-
-export const nftContractAddress = nftMumbaiAddress
-
-export const contractAbi = `[
+export const registryAbi = `[
 	{
 		"inputs": [
 			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "addrToTable",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "getUserTable",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_tableName",
-				"type": "string"
-			}
-		],
-		"name": "setUserTable",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	}
-]`
-
-export const nftContractAbi = `[
-	{
-		"inputs": [
-			{
-				"internalType": "address payable",
-				"name": "_tellorAddress",
-				"type": "address"
+				"internalType": "uint256",
+				"name": "_chainId",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "nonpayable",
 		"type": "constructor"
 	},
 	{
-		"anonymous": false,
 		"inputs": [
 			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "approved",
-				"type": "address"
-			},
-			{
-				"indexed": true,
 				"internalType": "uint256",
-				"name": "tokenId",
+				"name": "_modelId",
 				"type": "uint256"
 			}
 		],
-		"name": "Approval",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "operator",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "bool",
-				"name": "approved",
-				"type": "bool"
-			}
-		],
-		"name": "ApprovalForAll",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "from",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "to",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
-			}
-		],
-		"name": "Transfer",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "to",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
-			}
-		],
-		"name": "approve",
+		"name": "buyModel",
 		"outputs": [],
-		"stateMutability": "nonpayable",
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
 		"inputs": [
 			{
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
+				"internalType": "uint256",
+				"name": "_modelId",
+				"type": "uint256"
 			}
 		],
-		"name": "balanceOf",
+		"name": "callImageAdGen",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -177,42 +44,88 @@ export const nftContractAbi = `[
 				"type": "uint256"
 			}
 		],
-		"stateMutability": "view",
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
 		"inputs": [],
-		"name": "fetchLinko",
+		"name": "createModel",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_modelId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "response",
+				"type": "address"
+			}
+		],
+		"name": "fallbackImageAdGenAddress",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "fetchAllModel",
 		"outputs": [
 			{
 				"components": [
 					{
-						"internalType": "string",
-						"name": "cid",
-						"type": "string"
+						"internalType": "address",
+						"name": "tba",
+						"type": "address"
 					},
 					{
-						"internalType": "uint256",
-						"name": "price",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "usdPrice",
-						"type": "uint256"
-					},
-					{
-						"internalType": "address payable",
-						"name": "host",
+						"internalType": "address",
+						"name": "imgAdGen",
 						"type": "address"
 					},
 					{
 						"internalType": "uint256",
-						"name": "linkoId",
+						"name": "modelId",
 						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "modelNFT",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "creator",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "uint128",
+						"name": "price",
+						"type": "uint128"
+					},
+					{
+						"internalType": "bool",
+						"name": "sale",
+						"type": "bool"
 					}
 				],
-				"internalType": "struct LinkoNft.PaidLinko[]",
+				"internalType": "struct Registry.ModelAcc[]",
 				"name": "",
 				"type": "tuple[]"
 			}
@@ -224,337 +137,50 @@ export const nftContractAbi = `[
 		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "tokenId",
+				"name": "",
 				"type": "uint256"
 			}
 		],
-		"name": "getApproved",
+		"name": "idToModelAcc",
 		"outputs": [
 			{
 				"internalType": "address",
-				"name": "",
+				"name": "tba",
 				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_queryId",
-				"type": "bytes32"
 			},
-			{
-				"internalType": "uint256",
-				"name": "_timestamp",
-				"type": "uint256"
-			}
-		],
-		"name": "getDataAfter",
-		"outputs": [
-			{
-				"internalType": "bytes",
-				"name": "_value",
-				"type": "bytes"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_timestampRetrieved",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_queryId",
-				"type": "bytes32"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_timestamp",
-				"type": "uint256"
-			}
-		],
-		"name": "getDataBefore",
-		"outputs": [
-			{
-				"internalType": "bytes",
-				"name": "_value",
-				"type": "bytes"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_timestampRetrieved",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_queryId",
-				"type": "bytes32"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_timestamp",
-				"type": "uint256"
-			}
-		],
-		"name": "getIndexForDataAfter",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "_found",
-				"type": "bool"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_index",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_queryId",
-				"type": "bytes32"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_timestamp",
-				"type": "uint256"
-			}
-		],
-		"name": "getIndexForDataBefore",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "_found",
-				"type": "bool"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_index",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_queryId",
-				"type": "bytes32"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_timestamp",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_maxAge",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_maxCount",
-				"type": "uint256"
-			}
-		],
-		"name": "getMultipleValuesBefore",
-		"outputs": [
-			{
-				"internalType": "bytes[]",
-				"name": "_values",
-				"type": "bytes[]"
-			},
-			{
-				"internalType": "uint256[]",
-				"name": "_timestamps",
-				"type": "uint256[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_queryId",
-				"type": "bytes32"
-			}
-		],
-		"name": "getNewValueCountbyQueryId",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_queryId",
-				"type": "bytes32"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_timestamp",
-				"type": "uint256"
-			}
-		],
-		"name": "getReporterByTimestamp",
-		"outputs": [
 			{
 				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_queryId",
-				"type": "bytes32"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_index",
-				"type": "uint256"
-			}
-		],
-		"name": "getTimestampbyQueryIdandIndex",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "idMappingContract",
-		"outputs": [
-			{
-				"internalType": "contract IMappingContract",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "idToLinko",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "cid",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "price",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "usdPrice",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address payable",
-				"name": "host",
+				"name": "imgAdGen",
 				"type": "address"
 			},
 			{
 				"internalType": "uint256",
-				"name": "linkoId",
+				"name": "modelId",
 				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
+			},
+			{
+				"internalType": "address",
+				"name": "modelNFT",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "creator",
+				"type": "address"
+			},
 			{
 				"internalType": "address",
 				"name": "owner",
 				"type": "address"
 			},
 			{
-				"internalType": "address",
-				"name": "operator",
-				"type": "address"
-			}
-		],
-		"name": "isApprovedForAll",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_queryId",
-				"type": "bytes32"
+				"internalType": "uint128",
+				"name": "price",
+				"type": "uint128"
 			},
 			{
-				"internalType": "uint256",
-				"name": "_timestamp",
-				"type": "uint256"
-			}
-		],
-		"name": "isInDispute",
-		"outputs": [
-			{
 				"internalType": "bool",
-				"name": "",
+				"name": "sale",
 				"type": "bool"
 			}
 		],
@@ -563,55 +189,10 @@ export const nftContractAbi = `[
 	},
 	{
 		"inputs": [],
-		"name": "linkoId",
+		"name": "imgAdGen",
 		"outputs": [
 			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_linkoId",
-				"type": "uint256"
-			}
-		],
-		"name": "mint",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "name",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
-			}
-		],
-		"name": "ownerOf",
-		"outputs": [
-			{
-				"internalType": "address",
+				"internalType": "contract ImageAdGen",
 				"name": "",
 				"type": "address"
 			}
@@ -623,256 +204,28 @@ export const nftContractAbi = `[
 		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "_linkoId",
-				"type": "uint256"
-			}
-		],
-		"name": "priceInUsdt",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_queryId",
-				"type": "bytes32"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_timestamp",
-				"type": "uint256"
-			}
-		],
-		"name": "retrieveData",
-		"outputs": [
-			{
-				"internalType": "bytes",
-				"name": "",
-				"type": "bytes"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "from",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "to",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
-			}
-		],
-		"name": "safeTransferFrom",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "from",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "to",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "tokenId",
+				"name": "_modelId",
 				"type": "uint256"
 			},
 			{
-				"internalType": "bytes",
-				"name": "data",
-				"type": "bytes"
-			}
-		],
-		"name": "safeTransferFrom",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "operator",
-				"type": "address"
-			},
-			{
-				"internalType": "bool",
-				"name": "approved",
-				"type": "bool"
-			}
-		],
-		"name": "setApprovalForAll",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_addy",
-				"type": "address"
-			}
-		],
-		"name": "setIdMappingContract",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_IpfsFile",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
+				"internalType": "uint128",
 				"name": "_price",
-				"type": "uint256"
+				"type": "uint128"
 			}
 		],
-		"name": "setViewCollection",
+		"name": "listModelForSale",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "bytes4",
-				"name": "interfaceId",
-				"type": "bytes4"
-			}
-		],
-		"name": "supportsInterface",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
 		"inputs": [],
-		"name": "symbol",
+		"name": "modelGen",
 		"outputs": [
 			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "tellor",
-		"outputs": [
-			{
-				"internalType": "contract ITellor",
+				"internalType": "contract ModelGen",
 				"name": "",
 				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
-			}
-		],
-		"name": "tokenURI",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "from",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "to",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
-			}
-		],
-		"name": "transferFrom",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_id",
-				"type": "bytes32"
-			}
-		],
-		"name": "valueFor",
-		"outputs": [
-			{
-				"internalType": "int256",
-				"name": "_value",
-				"type": "int256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_timestamp",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_statusCode",
-				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
