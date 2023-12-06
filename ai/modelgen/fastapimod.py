@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 app = Flask(__name__)
-cors = CORS(app)
+
 
 
 CORS(app,resources={
