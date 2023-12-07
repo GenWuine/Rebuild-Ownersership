@@ -5,19 +5,20 @@ import { saveAs } from "file-saver";
 import web3modal from "web3modal";
 import { Navbar } from "@/components/navbar.jsx";
 import { Sidebar } from "@/components/sidebar.jsx";
-import { fetchAllModels, getModelGenAddress, getModelImage } from "@/utils.js";
+import {
+    fetchMyModels,
+    getModelGenAddress,
+    getModelImage,
+    listForSale,
+} from "@/utils.js";
 
 export default function Models() {
     const [linkos, setLinkos] = useState([]);
     const [loading, setLoading] = useState(false);
     const [modelGenAddress, setModelGenAddress] = useState();
-    // const [linkos, setLinkos] = useState([
-    //     {
-    //         modelName: "BlackBottle",
-    //         prompt: "A cylindrical shaped bottle with black color",
-    //     },
-    //     { modelName: "CartoonBox", prompt: "a toybox full of cartoon toys" },
-    // ]);
+    const [formInput, setFormInput] = useState({
+        price: "",
+    });
 
     useEffect(() => {
         fetchAllModelsData();
@@ -26,7 +27,7 @@ export default function Models() {
 
     async function fetchAllModelsData() {
         setLoading(true);
-        const data = await fetchAllModels();
+        const data = await fetchMyModels();
         setLinkos(data);
         setLoading(false);
     }
@@ -38,15 +39,14 @@ export default function Models() {
         setLoading(false);
     }
 
-    async function Download(_fileName, _fileUrl) {
-        const name = _fileName;
-        const fileUrl = _fileUrl;
-    }
-
-    async function Download(prop) {
+    async function download(prop) {
         const data = await getModelImage(prop.modelId);
         console.log(data);
         saveAs(data, prop.modelId);
+    }
+
+    async function listForSaleCall(prop) {
+        await listForSale(prop.modelId, formInput.price);
     }
 
     return (
@@ -93,11 +93,37 @@ export default function Models() {
                             </p>
                             <button
                                 onClick={() => {
-                                    Download(prop);
+                                    download(prop);
                                 }}
                                 className="ml-[3rem] inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                             >
                                 Download Model
+                            </button>
+                        </div>
+                        <div className="flex justify-between mt-3">
+                            <div className="flex gap-3">
+                                <p className="font-normal text-gray-700 dark:text-gray-400 mt-2">
+                                    Price:{" "}
+                                </p>
+                                <input
+                                    className="block px-4 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-l-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
+                                    placeholder="1 Matic"
+                                    value={formInput.price}
+                                    onChange={(e) => {
+                                        setFormInput({
+                                            ...formInput,
+                                            price: e.target.value,
+                                        });
+                                    }}
+                                />
+                            </div>
+                            <button
+                                onClick={() => {
+                                    listForSaleCall(prop);
+                                }}
+                                className="ml-[3rem] inline-flex items-center px-7 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                            >
+                                List for Sale
                             </button>
                         </div>
                     </div>

@@ -1,7 +1,7 @@
 "use client";
 import web3modal from "web3modal";
 import { ethers } from "ethers";
-import { registryAddress, registryAbi, modelGenAbi } from "./config";
+import { registryAddress, registryAbi, modelGenAbi, NftAbi } from "./config";
 import axios from "axios";
 import { Web3Storage } from "web3.storage";
 import { init, fetchQuery } from "@airstack/node";
@@ -47,6 +47,28 @@ export async function getModelGenContract(providerOrSigner, address) {
     return contract;
 }
 
+export async function getNftContract() {
+    const modelGenAddr = await getModelGenAddress()
+    
+    const modal = new web3modal();
+    const connection = await modal.connect();
+    const provider = new ethers.providers.Web3Provider(connection);
+    const signer = provider.getSigner();
+    const nftContract = new ethers.Contract(
+        modelGenAddr,
+        NftAbi,
+        signer,
+    )
+    return nftContract
+}
+
+export async function getUserAddress() {
+    const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+    });
+    return accounts[0];
+}
+
 export async function getModelGenAddress() {
     const contract = await getRegistryContract();
     const data = await contract.modelGen();
@@ -66,7 +88,7 @@ export async function getPosterAdsByModelId(modelId) {
     const address = await getTBAFromModelId(modelId);
     const data = await fetch(address);
     console.log(data);
-    return data
+    return data;
 }
 
 export async function getTBAFromModelId(modelId) {
@@ -88,10 +110,10 @@ async function fetch(user) {
         },
     };
 
-    const data = await axios.request(options)
-    const res = await data.data.result
-    console.log("res", res)
-    return res
+    const data = await axios.request(options);
+    const res = await data.data.result;
+    console.log("res", res);
+    return res;
 }
 
 // export async function getPosterAds(modelId) {
@@ -120,6 +142,29 @@ export async function createPosterAd(modelId) {
     console.log("Created successfully");
 }
 
+export async function listForSale(modelId, _price) {
+    const nftContract = await getNftContract()
+    const approve = await nftContract.approve(registryAddress, modelId)
+    console.log("_price", _price)
+    const price = ethers.utils.parseEther(_price);
+    const contract = await getRegistryContract(true);
+    const tx = await contract.listModelForSale(modelId, price);
+    await approve.wait()
+    await tx.wait();
+    console.log("Listed successfully");
+}
+
+export async function buyModel(modelId, _price) {
+    const weiPrice = ethers.utils.parseUnits(_price.toString(), "ether");
+    const contract = await getRegistryContract(true);
+    const tx = await contract.buyModel(modelId, {
+        value: weiPrice,
+        gasLimit: 1000000,
+    });
+    await tx.wait();
+    console.log("Listed successfully");
+}
+
 export async function fetchAllModels() {
     const contract = await getRegistryContract();
 
@@ -144,6 +189,7 @@ export async function fetchAllModels() {
                 modelId: i.modelId.toNumber(),
                 modelNFT: i.modelNFT.toString(),
                 creator: i.creator.toString(),
+                owner: i.owner.toString(),
                 price,
                 sale: i.sale,
                 modelImg,
@@ -154,4 +200,51 @@ export async function fetchAllModels() {
     allModels = items;
     console.log("All Models", items);
     return items;
+}
+
+export async function fetchMarketplaceModels() {
+    if (allModels.length > 0) {
+        const filteredArray = allModels.filter(
+            (subarray) => subarray.sale == true
+        );
+        return filteredArray;
+    } else {
+        const data = await fetchAllModels();
+        const filteredArray = data.filter((subarray) => subarray.sale == true);
+        return filteredArray;
+    }
+}
+
+export async function fetchMyModels() {
+    const data = await fetchAllModels();
+    return data;
+
+    // const me = await getUserAddress();
+    // me.toString().toLowerCase();
+    // const data = await fetchAllModels();
+    // const filteredArray = data.filter((subarray) => {
+    //     subarray.owner.toLowerCase();
+    //     console.log("me", me);
+    //     console.log("val", subarray.owner)
+    //     subarray.owner === me;
+    // });
+
+    // return filteredArray
+
+    // if (allModels.length > 0) {
+    //     const filteredArray = allModels.filter((subarray) => {
+    //         subarray.owner.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+    //         subarray.owner === me.toString();
+    //     });
+    //     return filteredArray;
+    // } else {
+    //     const data = await fetchAllModels();
+    //     const filteredArray = data.filter((subarray) => {
+    //         let val = subarray.owner
+    //         val.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+    //         console.log("val", val)
+    //         val.toString() === me.toString();
+    //     });
+    //     return filteredArray;
+    // }
 }
