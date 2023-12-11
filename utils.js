@@ -1,13 +1,15 @@
 "use client";
 import web3modal from "web3modal";
 import { ethers } from "ethers";
-import { registryAddress, registryAbi, modelGenAbi, NftAbi } from "./config";
+import { registryAddress, registryAbi, modelGenAbi, UriABI } from "./config";
 import axios from "axios";
 import { Web3Storage } from "web3.storage";
 import { init, fetchQuery } from "@airstack/node";
 import Moralis from "moralis";
 
 let allModels = [];
+
+fetchAllModels();
 
 Moralis.start({
     apiKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6ImRjOWNmODBkLTQwMzctNGNiNS04ZjQ4LTRhYTdjNGE0YmZhZiIsIm9yZ0lkIjoiMjQ4MTk0IiwidXNlcklkIjoiMjUxMzY2IiwidHlwZUlkIjoiMWJjNTA3Y2MtYTMxZC00MTliLWI0OGEtZTVkOGUzYmMwODFiIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE2ODQxODc2OTcsImV4cCI6NDgzOTk0NzY5N30.nh4cnHbpY8g9HhG-gZ3wNtsxaQAbLrv2QkMKUUz27rU",
@@ -47,19 +49,13 @@ export async function getModelGenContract(providerOrSigner, address) {
     return contract;
 }
 
-export async function getNftContract() {
-    const modelGenAddr = await getModelGenAddress()
-    
+export async function getNftURIContract(_contractAddress) {
     const modal = new web3modal();
     const connection = await modal.connect();
     const provider = new ethers.providers.Web3Provider(connection);
     const signer = provider.getSigner();
-    const nftContract = new ethers.Contract(
-        modelGenAddr,
-        NftAbi,
-        signer,
-    )
-    return nftContract
+    const nftContract = new ethers.Contract(_contractAddress, UriABI, signer);
+    return nftContract;
 }
 
 export async function getUserAddress() {
@@ -76,26 +72,12 @@ export async function getModelGenAddress() {
     return data;
 }
 
-export async function getModelImage(tokenId) {
+export async function getModelMetadata(tokenId) {
     const modelGenAddress = await getModelGenAddress();
     const contract = await getModelGenContract(false, modelGenAddress);
     const data = await contract.tokenURI(tokenId);
     console.log("Fetched");
     return data;
-}
-
-export async function getPosterAdsByModelId(modelId) {
-    const address = await getTBAFromModelId(modelId);
-    const data = await fetch(address);
-    console.log(data);
-    return data;
-}
-
-export async function getTBAFromModelId(modelId) {
-    const contract = await getRegistryContract();
-    const data = await contract.idToModelAcc(modelId);
-    console.log(data[0]);
-    return data[0];
 }
 
 async function fetch(user) {
@@ -116,6 +98,175 @@ async function fetch(user) {
     return res;
 }
 
+export async function getTokensURI(address, id) {
+    const contract = await getNftURIContract(address);
+    const uri = await contract.tokenURI(id);
+    // console.log("uri", uri)
+    return uri;
+}
+
+export async function getContentByModelId(modelId) {
+    const address = await getTBAFromModelId(modelId);
+    const data = await fetch(address);
+    console.log(data);
+    return data;
+}
+
+export async function getContentByTBA(tba) {
+    const data = await fetch(tba);
+    console.log(data);
+    return data;
+}
+
+export async function getTBAFromModelId(modelId) {
+    const contract = await getRegistryContract();
+    const data = await contract.idToModelAcc(modelId);
+    console.log(data[0]);
+    return data[0];
+}
+
+async function callModelGenAPI(_prompt) {
+    
+    const apiUrl = 'https://modelgen.pythonanywhere.com/generate-model-img/'
+    try {
+
+        const payload = {
+            description: _prompt
+          };
+          
+
+        const response = await axios.post(apiUrl, payload);
+        console.log(response.data.s3_public_url)
+        return response.data.s3_public_url;
+    } catch (error) {
+        console.error("Error fetching cat data:", error.message);
+        return null;
+    }
+}
+
+export async function createModelGenImage(_prompt) {
+    const image = await callModelGenAPI(_prompt);
+    return image;
+}
+
+async function createModelURI(_name, _prompt, image) {
+    // if (!_name || !_prompt || !image) return;
+    console.log("img:", image);
+    const data = JSON.stringify({ _name, _prompt, image });
+    const files = [new File([data], "data.json")];
+    const metaCID = await uploadToIPFS(files);
+    const url = `https://ipfs.io/ipfs/${metaCID}/data.json`;
+    console.log(url);
+    return url;
+}
+
+export async function createModelGenAccountCreation(_name, _prompt, image) {
+    const uri = await createModelURI(_name, _prompt, image);
+    const contract = await getRegistryContract(true);
+    const tx = await contract.createModel(uri);
+    await tx.wait();
+    await fetchAllModels();
+    console.log("Account Created successfully");
+}
+
+async function createContentURI(_productImage, _prompt, image) {
+    // const image = await callStaticContentGenAPI(_prompt);
+    // if (!_productImage || !_prompt || !image) return;
+    console.log("img:", image);
+    const data = JSON.stringify({ _productImage, _prompt, image });
+    const files = [new File([data], "data.json")];
+    const metaCID = await uploadToIPFS(files);
+    const url = `https://ipfs.io/ipfs/${metaCID}/data.json`;
+    console.log(url);
+    return url;
+}
+
+async function callStaticContentGenAPI(_prompt, _productImage, tba) {
+
+    const apiUrl = "https://api.thecatapi.com/v1/images/search/";
+
+    try {
+        const response = await axios.get(apiUrl);
+        return response.data[0].url;
+    } catch (error) {
+        console.error("Error fetching cat data:", error.message);
+        return null;
+    }
+
+    
+    // // _prompt, _productImage, _modelImage => has these three params
+    // const apiUrl = "https://imgtoimg.pythonanywhere.com/generate-imgtoimg/";
+
+    // try {
+    //     const payload = {
+    //         image_url: _productImage,
+    //         user_prompt: _prompt
+    //       };
+
+    //     const response = await axios.post(apiUrl, payload);
+    //     console.log(response.data.s3_public_url)
+    //     return response.data.s3_public_url;
+    // } catch (error) {
+    //     console.error("Error fetching cat data:", error.message);
+    //     return null;
+    // }
+}
+
+export async function getModelImageFromTBA(tba) {
+    let result;
+    allModels.filter((e) => {
+        if (e.tba == tba) {
+            console.log("modelId inside using e.modelid", e.modelId);
+            result = e.modelImg;
+            console.log('result inside the if block', result)
+        }
+        console.log("modelId out of e block", result)
+    });
+    console.log('result outside e fn', result)
+    return result
+}
+
+export async function getModelIdByTBA(tba) {
+    let result;
+    allModels.filter((e) => {
+        if (e.tba == tba) {
+            console.log("modelId inside using e.modelid", e.modelId);
+            result = e.modelId;
+            console.log('result inside the if block', result)
+        }
+        console.log("modelId out of e block", result)
+    });
+    console.log('result outside e fn', result)
+    return result
+}
+
+export async function createStaticContentImage(_prompt, _productImage, tba) {
+    const modelImage = await getModelImageFromTBA(tba);
+    const image = await callStaticContentGenAPI(
+        _prompt,
+        _productImage,
+        modelImage
+    );
+    return image;
+}
+
+export async function createStaticContentGeneration(
+    _productImage,
+    _prompt,
+    image,
+    tba
+) {
+    const _modelId = await getModelIdByTBA(tba);
+    const uri = await createContentURI(_productImage, _prompt, image);
+    console.log(_modelId, uri);
+
+    const contract = await getRegistryContract(true);
+    // const tx = await contract.callImageAdGen(_modelId, uri);
+    const tx = await contract.callContentGen(_modelId, uri);
+    await tx.wait();
+    console.log("Content Created successfully");
+}
+
 // export async function getPosterAds(modelId) {
 
 //     init("YOUR_AIRSTACK_API_KEY");
@@ -128,28 +279,14 @@ async function fetch(user) {
 //     console.log("error:", error);
 // }
 
-export async function createModelGen() {
-    const contract = await getRegistryContract(true);
-    const tx = await contract.createModel();
-    await tx.wait();
-    console.log("Created successfully");
-}
-
-export async function createPosterAd(modelId) {
-    const contract = await getRegistryContract(true);
-    const tx = await contract.callImageAdGen(modelId);
-    await tx.wait();
-    console.log("Created successfully");
-}
-
 export async function listForSale(modelId, _price) {
-    const nftContract = await getNftContract()
-    const approve = await nftContract.approve(registryAddress, modelId)
-    console.log("_price", _price)
+    const nftContract = await getNftContract();
+    const approve = await nftContract.approve(registryAddress, modelId);
+    console.log("_price", _price);
     const price = ethers.utils.parseEther(_price);
     const contract = await getRegistryContract(true);
     const tx = await contract.listModelForSale(modelId, price);
-    await approve.wait()
+    await approve.wait();
     await tx.wait();
     console.log("Listed successfully");
 }
@@ -166,37 +303,41 @@ export async function buyModel(modelId, _price) {
 }
 
 export async function fetchAllModels() {
+    if (allModels.length > 0) return allModels;
+
     const contract = await getRegistryContract();
+
+    const modelGenAddress = await getModelGenAddress();
+    const modelGenContract = await getModelGenContract(false, modelGenAddress);
 
     const data = await contract.fetchAllModel();
     // console.log("data", data)
     const items = await Promise.all(
         data.map(async (i) => {
-            // const tokenUri = await contract.uri(i.ticketId.toString());
-            // console.log(tokenUri);
-            // const meta = await axios.get(tokenUri);
-            const modelImg = await getModelImage(i.modelId.toNumber());
+            const metadataUrl = await modelGenContract.tokenURI(
+                i.modelId.toNumber()
+            );
+            const metadata = await axios.get(metadataUrl);
             let price = ethers.utils.formatEther(i.price);
             let item = {
-                // name: meta.data.name,
-                // venue: meta.data.venue,
-                // date: meta.data.date,
-                // description: meta.data.description,
-                // cover: meta.data.cover,
-                // NftURI: tokenUri,
+                name: metadata.data._name,
+                prompt: metadata.data._prompt,
+                modelImg: metadata.data.image,
                 tba: i.tba.toString(),
                 imgAdGen: i.imgAdGen.toString(),
                 modelId: i.modelId.toNumber(),
-                modelNFT: i.modelNFT.toString(),
                 creator: i.creator.toString(),
                 owner: i.owner.toString(),
                 price,
                 sale: i.sale,
-                modelImg,
+                // metadata,
             };
             return item;
         })
     );
+
+    console.log("3");
+
     allModels = items;
     console.log("All Models", items);
     return items;
@@ -247,4 +388,27 @@ export async function fetchMyModels() {
     //     });
     //     return filteredArray;
     // }
+}
+
+function getAccessToken() {
+    // return process.env.NEXT_PUBLIC_Web3StorageID
+    return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDkyMjkyQjQ5YzFjN2ExMzhERWQxQzQ3NGNlNmEyNmM1NURFNWQ0REQiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NjUyMzg2MDc1NDEsIm5hbWUiOiJNZXRhRmkifQ.cwyjEIx8vXtTnn8Y3vctroo_rooHV4ww_2xKY-MT0rs";
+}
+
+function makeStorageClient() {
+    return new Web3Storage({ token: getAccessToken() });
+}
+
+export const uploadToIPFS = async (files) => {
+    const client = makeStorageClient();
+    const cid = await client.put(files);
+    return cid;
+};
+
+export async function getSigner() {
+    const modal = new web3modal();
+    const connection = await modal.connect();
+    const provider = new ethers.providers.Web3Provider(connection);
+    const signer = provider.getSigner();
+    return signer;
 }
