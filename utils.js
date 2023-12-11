@@ -133,7 +133,51 @@ async function callModelGenAPI(_prompt) {
         const payload = {
             description: _prompt
           };
-          
+
+        console.log("payload", payload)
+
+        const response = await axios.post(apiUrl, payload);
+        console.log(response.data.s3_public_url)
+        return response.data.s3_public_url;
+    } catch (error) {
+        console.error("Error fetching cat data:", error.message);
+        return null;
+    }
+}
+
+export async function callStaticContentGenAPI(_prompt, _productImage, tba, _name) {
+    const _modelImage = await getModelImageFromTBA(tba);
+
+    const apiUrl = 'https://adgen.pythonanywhere.com/generate-ad-poster/'
+    try {
+
+        const payload = {
+            name: _name,
+            description: _prompt,
+            url1: _modelImage,
+            url2: _productImage,
+          }
+
+          console.log("payload", payload)
+
+        const response = await axios.post(apiUrl, payload);
+        console.log(response)
+        return response.data.s3_public_url;
+    } catch (error) {
+        console.error("Error fetching cat data:", error.message);
+        return null;
+    }
+}
+
+async function callFineTuneAPI(_prompt) {
+    
+    const apiUrl = 'https://modelgen.pythonanywhere.com/generate-model-img/'
+    try {
+
+        const payload = {
+            image_url: _productImage,
+            user_prompt: _prompt,
+          };
 
         const response = await axios.post(apiUrl, payload);
         console.log(response.data.s3_public_url)
@@ -181,37 +225,6 @@ async function createContentURI(_productImage, _prompt, image) {
     return url;
 }
 
-async function callStaticContentGenAPI(_prompt, _productImage, tba) {
-
-    const apiUrl = "https://api.thecatapi.com/v1/images/search/";
-
-    try {
-        const response = await axios.get(apiUrl);
-        return response.data[0].url;
-    } catch (error) {
-        console.error("Error fetching cat data:", error.message);
-        return null;
-    }
-
-    
-    // // _prompt, _productImage, _modelImage => has these three params
-    // const apiUrl = "https://imgtoimg.pythonanywhere.com/generate-imgtoimg/";
-
-    // try {
-    //     const payload = {
-    //         image_url: _productImage,
-    //         user_prompt: _prompt
-    //       };
-
-    //     const response = await axios.post(apiUrl, payload);
-    //     console.log(response.data.s3_public_url)
-    //     return response.data.s3_public_url;
-    // } catch (error) {
-    //     console.error("Error fetching cat data:", error.message);
-    //     return null;
-    // }
-}
-
 export async function getModelImageFromTBA(tba) {
     let result;
     allModels.filter((e) => {
@@ -240,15 +253,6 @@ export async function getModelIdByTBA(tba) {
     return result
 }
 
-export async function createStaticContentImage(_prompt, _productImage, tba) {
-    const modelImage = await getModelImageFromTBA(tba);
-    const image = await callStaticContentGenAPI(
-        _prompt,
-        _productImage,
-        modelImage
-    );
-    return image;
-}
 
 export async function createStaticContentGeneration(
     _productImage,
@@ -267,20 +271,8 @@ export async function createStaticContentGeneration(
     console.log("Content Created successfully");
 }
 
-// export async function getPosterAds(modelId) {
-
-//     init("YOUR_AIRSTACK_API_KEY");
-
-//     const query = `YOUR_QUERY`; // Replace with GraphQL Query
-
-//     const { data, error } = await fetchQuery(query);
-
-//     console.log("data:", data);
-//     console.log("error:", error);
-// }
-
 export async function listForSale(modelId, _price) {
-    const nftContract = await getNftContract();
+    const nftContract = await getNftURIContract();
     const approve = await nftContract.approve(registryAddress, modelId);
     console.log("_price", _price);
     const price = ethers.utils.parseEther(_price);

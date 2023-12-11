@@ -9,7 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 const CreateModel = () => {
     const [formInput, setFormInput] = useState({
         modelName: "test-name",
-        modelPrompt: "test-prompt",
+        modelPrompt: "white schoolgirl",
         fineTunePrompt: "test-prompt",
     });
     // const [loading, setLoading] = useState(false);
@@ -58,7 +58,7 @@ const CreateModel = () => {
             <NavBar />
             <div className="flex">
                 <SideBar />
-                <div className="p-4 sm:ml-64 pt-20 bg-gray-900 w-full h-screen">
+                <div className="p-4 sm:ml-64 pt-20 bg-gray-900 w-full h-[100%]">
                     <div className="text-white">
                         <div className="mt-10">
                             <h1 className="font-bold text-3xl text-center">
