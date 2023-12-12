@@ -44,15 +44,19 @@ const FetchContentByTBA = () => {
             fetchUri();
         }, []);
 
+        console.log("mounted")
+
         async function fetchUri() {
             const res1 = await getTokensURI(address, id);
             const res2 = await axios.get(res1);
+            console.log(address, id)
+            console.log("URI: ", res2.data)
             setFetchedURI(res2.data);
         }
 
         return (
             <div className="mt-10 relative">
-                <div className="flex gap-5 block w-3/4 relative p-6 mx-auto cursor-pointer bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                <div className="flex gap-5 w-3/4 relative p-6 mx-auto cursor-pointer bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
                     <img src={fetchedURI.image} width="100px" />
                     {/* <p>Model Id: {prop.tba}</p> */}
                     <div className="flex justify-between">
@@ -70,7 +74,7 @@ const FetchContentByTBA = () => {
                     <div className="flex justify-between">
                         <button
                             onClick={() => {
-                                download("TBAI", fetchedURI.image);
+                                download("output", fetchedURI.image);
                             }}
                             className="h-[50px] w-[140px] inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                         >

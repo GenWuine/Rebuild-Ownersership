@@ -6,6 +6,7 @@ import axios from "axios";
 import { Web3Storage } from "web3.storage";
 import { init, fetchQuery } from "@airstack/node";
 import Moralis from "moralis";
+import AWS from "aws-sdk";
 
 let allModels = [];
 
@@ -126,18 +127,16 @@ export async function getTBAFromModelId(modelId) {
 }
 
 async function callModelGenAPI(_prompt) {
-    
-    const apiUrl = 'https://modelgen.pythonanywhere.com/generate-model-img/'
+    const apiUrl = "https://modelgen.pythonanywhere.com/generate-model-img/";
     try {
-
         const payload = {
-            description: _prompt
-          };
+            description: _prompt,
+        };
 
-        console.log("payload", payload)
+        console.log("payload", payload);
 
         const response = await axios.post(apiUrl, payload);
-        console.log(response.data.s3_public_url)
+        console.log(response.data.s3_public_url);
         return response.data.s3_public_url;
     } catch (error) {
         console.error("Error fetching cat data:", error.message);
@@ -145,23 +144,27 @@ async function callModelGenAPI(_prompt) {
     }
 }
 
-export async function callStaticContentGenAPI(_prompt, _productImage, tba, _name) {
+export async function callStaticContentGenAPI(
+    _prompt,
+    _productImage,
+    tba,
+    _name
+) {
     const _modelImage = await getModelImageFromTBA(tba);
 
-    const apiUrl = 'https://adgen.pythonanywhere.com/generate-ad-poster/'
+    const apiUrl = "https://adgen.pythonanywhere.com/generate-ad-poster/";
     try {
-
         const payload = {
             name: _name,
             description: _prompt,
             url1: _modelImage,
             url2: _productImage,
-          }
+        };
 
-          console.log("payload", payload)
+        console.log("payload", payload);
 
         const response = await axios.post(apiUrl, payload);
-        console.log(response)
+        console.log(response);
         return response.data.s3_public_url;
     } catch (error) {
         console.error("Error fetching cat data:", error.message);
@@ -169,21 +172,78 @@ export async function callStaticContentGenAPI(_prompt, _productImage, tba, _name
     }
 }
 
-async function callFineTuneAPI(_prompt) {
-    
-    const apiUrl = 'https://modelgen.pythonanywhere.com/generate-model-img/'
-    try {
+export async function callDynamicContentGenAPI(
+    _productName, _prompt, tba, _gender
+) {
+    const _modelImage = await getModelImageFromTBA(tba);
 
+    const apiUrl = "http://127.0.0.1:5000/generate-vid/";
+    try {
         const payload = {
-            image_url: _productImage,
-            user_prompt: _prompt,
+            product_name: _productName,
+            product_description: _prompt,
+            model_img: _modelImage,
+            model_gender: _gender,
           };
 
+        console.log("payload", payload);
+
         const response = await axios.post(apiUrl, payload);
-        console.log(response.data.s3_public_url)
-        return response.data.s3_public_url;
+        console.log(response);
+        return response.data.result;
+    } catch (error) {
+        console.error("Error fetching: ", error.message);
+        return null;
+    }
+}
+
+export async function callFineTuneAPI(_generatedImage, _prompt) {
+    const apiUrl = "http://127.0.0.1:5000/generate-imgtoimg/";
+    try {
+        const payload = {
+            image_url: _generatedImage,
+            user_prompt: _prompt,
+        };
+
+        console.log("payload", payload);
+
+        const res1 = await axios.post(apiUrl, payload);
+        // const res1Output = res1.data.objects;
+        // const res2 = await axios.get(res1Output);
+        // console.log(res2);
+        console.log("res1", res1);
+        return res1;
     } catch (error) {
         console.error("Error fetching cat data:", error.message);
+        return null;
+    }
+}
+
+export async function fetchDeadLink() {
+    AWS.config.update({
+        region: "ap-south-1", // replace with your AWS region
+        credentials: new AWS.Credentials(
+            "AKIAZYCGGJIZTPOLTE77",
+            "4Z66sxa0D+OWdvkzpZJxdmTzxDmK9P6s8dd7Bv+a"
+        ), // replace with your AWS credentials
+    });
+
+    const s3 = new AWS.S3();
+
+    const params = {
+        Bucket: "bucketforadgen",
+        Key: "change_the_girl's_hairstyle_ad_poster.png",
+    };
+
+    const apiUrl =
+        "https://bucketforadgen.s3.amazonaws.com/change_the_girl's_hairstyle_ad_poster.png";
+
+    try {
+        const response = await s3.getObject(params).promise();
+        const jsonData = JSON.parse(response.Body.toString("utf-8"));
+        console.log("JSON Data:", jsonData);
+    } catch (error) {
+        console.error("Error fetching url data:", error.message);
         return null;
     }
 }
@@ -231,12 +291,12 @@ export async function getModelImageFromTBA(tba) {
         if (e.tba == tba) {
             console.log("modelId inside using e.modelid", e.modelId);
             result = e.modelImg;
-            console.log('result inside the if block', result)
+            console.log("result inside the if block", result);
         }
-        console.log("modelId out of e block", result)
+        console.log("modelId out of e block", result);
     });
-    console.log('result outside e fn', result)
-    return result
+    console.log("result outside e fn", result);
+    return result;
 }
 
 export async function getModelIdByTBA(tba) {
@@ -245,14 +305,13 @@ export async function getModelIdByTBA(tba) {
         if (e.tba == tba) {
             console.log("modelId inside using e.modelid", e.modelId);
             result = e.modelId;
-            console.log('result inside the if block', result)
+            console.log("result inside the if block", result);
         }
-        console.log("modelId out of e block", result)
+        console.log("modelId out of e block", result);
     });
-    console.log('result outside e fn', result)
-    return result
+    console.log("result outside e fn", result);
+    return result;
 }
-
 
 export async function createStaticContentGeneration(
     _productImage,

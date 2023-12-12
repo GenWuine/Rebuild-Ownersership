@@ -1,5 +1,10 @@
 "use client";
-import { createModelGenImage, createModelGenAccountCreation } from "@/utils";
+import {
+    createModelGenImage,
+    createModelGenAccountCreation,
+    callFineTuneAPI,
+    fetchDeadLink,
+} from "@/utils";
 import NavBar from "@/components/NavBar";
 import SideBar from "@/components/SideBar";
 import { useState } from "react";
@@ -9,30 +14,40 @@ import "react-toastify/dist/ReactToastify.css";
 const CreateModel = () => {
     const [formInput, setFormInput] = useState({
         modelName: "test-name",
-        modelPrompt: "white schoolgirl",
-        fineTunePrompt: "test-prompt",
+        modelPrompt: "schoolgirl in a white t-shirt",
+        fineTunePrompt: "change the girl's hairstyle",
+        fineTuned: false,
     });
+
     // const [loading, setLoading] = useState(false);
     const [loaders, setLoaders] = useState({
         generateLoader: false,
         fineTuneLoader: false,
         createAccountLoader: false,
     });
+
     const [generatedImage, setGeneratedImage] = useState("");
 
+    const [fineTuneResults, setFineTuneResults] = useState({
+        img1: "https://bucketforadgen.s3.amazonaws.com/schoolgirl_in_a_white_t-shirt_model_img.png",
+        img2: "",
+        img3: "",
+        img4: "",
+    });
+
     async function modelGenImageGenerationCall() {
-        setLoaders((e) => ({...e, generateLoader: true}));
+        setLoaders((e) => ({ ...e, generateLoader: true }));
         const image = await createModelGenImage(formInput.modelPrompt);
         setGeneratedImage(image);
-        setLoaders((e) => ({...e, generateLoader: false}));
+        setLoaders((e) => ({ ...e, generateLoader: false }));
     }
 
     async function modelGenAccountCreationCall() {
-        setLoaders((e) => ({...e, createAccountLoader: true}));
+        setLoaders((e) => ({ ...e, createAccountLoader: true }));
         await createModelGenAccountCreation(
             formInput.modelName,
             formInput.modelPrompt,
-            generatedImage,
+            generatedImage
         );
         // initialize xmtp
         toast.success("TBAI Account Created!", {
@@ -45,12 +60,35 @@ const CreateModel = () => {
             progress: undefined,
             theme: "dark",
         });
-        setLoaders((e) => ({...e, createAccountLoader: false}));
+        setLoaders((e) => ({ ...e, createAccountLoader: false }));
     }
 
     async function fineTuneCall() {
-        setLoaders((e) => ({...e, createAccountLoader: true}));
-        setLoaders((e) => ({...e, createAccountLoader: false}));
+        setLoaders((e) => ({ ...e, fineTuneLoader: true }));
+
+        const results = await callFineTuneAPI(
+            generatedImage,
+            formInput.fineTunePrompt
+        );
+
+        // const results = await fetchDeadLink()
+
+        // formInput.fineTuned = true;
+
+        // console.log(results);
+
+        toast.success("Tuned Output Generated!", {
+            position: "bottom-left",
+            autoClose: 5000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+        });
+
+        setLoaders((e) => ({ ...e, fineTuneLoader: false }));
     }
 
     return (
@@ -152,11 +190,12 @@ const CreateModel = () => {
                                             className="block p-4 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-l-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
                                             placeholder="Model Name"
                                             required
-                                            value={formInput.modelName}
+                                            value={formInput.fineTunePrompt}
                                             onChange={(e) => {
                                                 setFormInput({
                                                     ...formInput,
-                                                    modelName: e.target.value,
+                                                    fineTunePrompt:
+                                                        e.target.value,
                                                 });
                                             }}
                                         />
@@ -227,6 +266,40 @@ const CreateModel = () => {
                             )}
                         </div>
                     </div>
+
+                    {/* fine tune outputs */}
+                    {/* <div className="mx-[12%] mt-[2%]">
+                        <h1 className="font-bold text-xl ">
+                            Fine Tune Outputs
+                        </h1>
+                        <div className="flex gap-4 text-white w-[100%] px-4 box-background pt-4 pb-5 rounded-xl">
+                        <div className="flex flex-col items-center">
+                                <img src={fineTuneResults.img1} width="300px" />
+                                <button className="flex mt-2 w-[50%] justify-center py-4 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                    Select
+                                </button>
+                            </div>
+                            <div className="flex flex-col items-center">
+                                <img src={fineTuneResults.img1} width="300px" />
+                                <button className="flex mt-2 w-[50%] justify-center py-4 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                    Select
+                                </button>
+                            </div>
+                            <div className="flex flex-col items-center">
+                                <img src={fineTuneResults.img1} width="300px" />
+                                <button className="flex mt-2 w-[50%] justify-center py-4 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                    Select
+                                </button>
+                            </div>
+                            <div className="flex flex-col items-center">
+                                <img src={fineTuneResults.img1} width="300px" />
+                                <button className="flex mt-2 w-[50%] justify-center py-4 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                    Select
+                                </button>
+                            </div>
+                        </div>
+                    </div> */}
+
                 </div>
             </div>
             <ToastContainer

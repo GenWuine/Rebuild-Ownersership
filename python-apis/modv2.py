@@ -46,7 +46,7 @@ def generate_model_img(model_description):
 def upload_to_s3(image_content, model_description):
     try:
         
-      az  model_description_cleaned = model_description.replace(" ", "_")
+        model_description_cleaned = model_description.replace(" ", "_")
 
         s3_bucket_name = 'bucketforadgen'
         

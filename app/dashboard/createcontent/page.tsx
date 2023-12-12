@@ -3,7 +3,7 @@
 import {
     callStaticContentGenAPI,
     createStaticContentGeneration,
-    createStaticContentImage,
+    callFineTuneAPI,
     uploadToIPFS,
 } from "@/utils";
 import NavBar from "@/components/NavBar";
@@ -76,8 +76,11 @@ const CreateContent = () => {
     }
 
     async function fineTuneCall() {
-        setLoaders((e) => ({ ...e, createAccountLoader: true }));
-        setLoaders((e) => ({ ...e, createAccountLoader: false }));
+        setLoaders((e) => ({ ...e, fineTuneLoader: true }));
+        const results = await callFineTuneAPI(generatedImage, formInput.fineTunePrompt)
+        console.log(results)
+
+        setLoaders((e) => ({ ...e, fineTuneLoader: false }));
     }
 
     return (
@@ -310,7 +313,7 @@ const CreateContent = () => {
                                                 onClick={contentGenCreationCall}
                                             >
                                                 {!loaders.createAccountLoader ? (
-                                                    <span>Create Content</span>
+                                                    <span>Publish Content</span>
                                                 ) : (
                                                     <svg
                                                         aria-hidden="true"

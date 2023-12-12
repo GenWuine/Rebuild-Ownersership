@@ -63,7 +63,11 @@ def download_image(url):
     response.raise_for_status()  # Check for HTTP errors
     return response.content
 
-def upload_to_s3(image_bytes, user_prompt, content_type):
+def generate_image_links(generated_image_urls):
+    for idx, image_url in enumerate(generated_image_urls):
+        print(f"Open Image {idx + 1}: {image_url}")
+
+def upload_to_s3(image_bytes, user_prompt):
     try:
         # Replace spaces with underscores in the product name
         user_prompt_cleaned = user_prompt.replace(" ", "_")
@@ -72,7 +76,7 @@ def upload_to_s3(image_bytes, user_prompt, content_type):
         s3_key = f"{user_prompt_cleaned}_ad_poster.png"
 
         # Upload the image to S3 with the correct content type
-        s3.put_object(Body=image_bytes, Bucket=S3_BUCKET_NAME, Key=s3_key, ContentType=content_type)
+        s3.put_object(Body=image_bytes, Bucket=S3_BUCKET_NAME, Key=s3_key, ContentType="image/jpg")
 
         s3_public_url = f'https://{S3_BUCKET_NAME}.s3.amazonaws.com/{s3_key}'
         return s3_public_url
@@ -81,47 +85,14 @@ def upload_to_s3(image_bytes, user_prompt, content_type):
         print(f"Error uploading to S3: {e}")
         return None
 
-def generate_html_page(image_urls):
-    # Create an HTML page with links to the images
-    html_content = "<html><body>"
-    for idx, image_url in enumerate(image_urls):
-        html_content += f"<a href='{image_url}' target='_blank'>Image {idx + 1}</a><br>"
-    html_content += "</body></html>"
-
-    return html_content
-
-def upload_html_to_s3(html_content, user_prompt):
-    try:
-        # Replace spaces with underscores in the user prompt
-        user_prompt_cleaned = user_prompt.replace(" ", "_")
-
-        # Set S3 key for the HTML file
-        s3_key_html = f"{user_prompt_cleaned}_image_gallery.html"
-
-        # Upload the HTML file to S3
-        s3.put_object(Body=html_content.encode('utf-8'), Bucket=S3_BUCKET_NAME, Key=s3_key_html, ContentType='text/html')
-
-        s3_public_url_html = f'https://{S3_BUCKET_NAME}.s3.amazonaws.com/{s3_key_html}'
-        return s3_public_url_html
-    
-    except Exception as e:
-        print(f"Error uploading HTML to S3: {e}")
-        return None
-
  
 @app.route("/generate-imgtoimg/", methods=["POST"])
 @cross_origin(allow_headers=['Content-Type'])
 def generate_images():
     try:
-        # data = request.get_json()
-        # image_url  = data["image_url"]
-        # user_prompt=data["user_prompt"]
 
         image_url  = request.json.get("image_url")
         user_prompt = request.json.get("user_prompt")
-        
-        
-
         
         # Download the image from the URL
         image_bytes = download_image(image_url)
@@ -141,8 +112,8 @@ def generate_images():
         response_upload = requests.post(url_upload_image, files={'file': ('image.png', image_bytes)}, data=fields)
         response_upload.raise_for_status()  # Check for HTTP errors
 
-        # Check content type of the upload response
-        content_type_upload = response_upload.headers.get('Content-Type', 'image/png')
+        # # Check content type of the upload response
+        # content_type_upload = response_upload.headers.get('Content-Type', 'image/png')
 
         # Generate with an image prompt
         payload_generations = {
@@ -154,10 +125,7 @@ def generate_images():
         }
 
         response_generate = requests.post(url_generations, json=payload_generations, headers=headers)
-        response_generate.raise_for_status()  # Check for HTTP errors
-
-        # Check content type of the generate response
-        content_type_generate = response_generate.headers.get('Content-Type', 'image/png')
+        response_generate.raise_for_status()  
 
         # Get the generation of images
         generation_id = response_generate.json().get('sdGenerationJob', {}).get('generationId', '')
@@ -171,23 +139,20 @@ def generate_images():
         response_result.raise_for_status()  # Check for HTTP errors
 
         # Upload the ad poster to S3 with the correct content type
-        s3_public_url = upload_to_s3(response_result.content, user_prompt, content_type_generate)
+        s3_public_url = upload_to_s3(response_result.content, user_prompt)
 
-        # Upload generated images to S3
+ # Upload generated images to S3
         generated_images = response_result.json().get("generations_by_pk", {}).get("generated_images", [])
         generated_image_urls = []
         for idx, image_info in enumerate(generated_images):
             image_url = image_info.get("url", "")
             image_bytes = download_image(image_url)
-            generated_image_urls.append(upload_to_s3(image_bytes, f"{user_prompt}_generated_{idx}", "image/png"))
+            generated_image_urls.append(upload_to_s3(image_bytes, f"{user_prompt}generated{idx}"))
 
-        # Generate HTML page with links to images
-        html_content = generate_html_page(generated_image_urls)
+        # Print image URLs in the console
+        generate_image_links(generated_image_urls)
 
-        # Upload the HTML file to S3
-        s3_public_url_html = upload_html_to_s3(html_content, user_prompt)
-
-        return jsonify({ "html_url": s3_public_url_html})
+        return jsonify({"objects": generated_image_urls})
 
     except requests.exceptions.RequestException as e:
         return jsonify({"error": str(e)})
