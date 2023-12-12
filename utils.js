@@ -4,9 +4,9 @@ import { ethers } from "ethers";
 import { registryAddress, registryAbi, modelGenAbi, UriABI } from "./config";
 import axios from "axios";
 import { Web3Storage } from "web3.storage";
-import { init, fetchQuery } from "@airstack/node";
 import Moralis from "moralis";
-import AWS from "aws-sdk";
+// import { init, fetchQuery } from "@airstack/node";
+// import AWS from "aws-sdk";
 
 let allModels = [];
 
@@ -219,34 +219,34 @@ export async function callFineTuneAPI(_generatedImage, _prompt) {
     }
 }
 
-export async function fetchDeadLink() {
-    AWS.config.update({
-        region: "ap-south-1", // replace with your AWS region
-        credentials: new AWS.Credentials(
-            "AKIAZYCGGJIZTPOLTE77",
-            "4Z66sxa0D+OWdvkzpZJxdmTzxDmK9P6s8dd7Bv+a"
-        ), // replace with your AWS credentials
-    });
+// export async function fetchDeadLink() {
+//     AWS.config.update({
+//         region: "ap-south-1", // replace with your AWS region
+//         credentials: new AWS.Credentials(
+//             "AKIAZYCGGJIZTPOLTE77",
+//             "4Z66sxa0D+OWdvkzpZJxdmTzxDmK9P6s8dd7Bv+a"
+//         ), // replace with your AWS credentials
+//     });
 
-    const s3 = new AWS.S3();
+//     const s3 = new AWS.S3();
 
-    const params = {
-        Bucket: "bucketforadgen",
-        Key: "change_the_girl's_hairstyle_ad_poster.png",
-    };
+//     const params = {
+//         Bucket: "bucketforadgen",
+//         Key: "change_the_girl's_hairstyle_ad_poster.png",
+//     };
 
-    const apiUrl =
-        "https://bucketforadgen.s3.amazonaws.com/change_the_girl's_hairstyle_ad_poster.png";
+//     const apiUrl =
+//         "https://bucketforadgen.s3.amazonaws.com/change_the_girl's_hairstyle_ad_poster.png";
 
-    try {
-        const response = await s3.getObject(params).promise();
-        const jsonData = JSON.parse(response.Body.toString("utf-8"));
-        console.log("JSON Data:", jsonData);
-    } catch (error) {
-        console.error("Error fetching url data:", error.message);
-        return null;
-    }
-}
+//     try {
+//         const response = await s3.getObject(params).promise();
+//         const jsonData = JSON.parse(response.Body.toString("utf-8"));
+//         console.log("JSON Data:", jsonData);
+//     } catch (error) {
+//         console.error("Error fetching url data:", error.message);
+//         return null;
+//     }
+// }
 
 export async function createModelGenImage(_prompt) {
     const image = await callModelGenAPI(_prompt);

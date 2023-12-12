@@ -7,15 +7,20 @@ import {FunctionsRequest} from "@chainlink/contracts/src/v0.8/functions/dev/v1_0
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
-contract ModelGen is FunctionsClient, ConfirmedOwner, ERC721URIStorage {
+interface IRegistry {
+    function fallbackImageAdGenAddress() external;
+}
 
-    address registryAddress;
+contract ImageAdGen is FunctionsClient, ConfirmedOwner, ERC721URIStorage {
 
-    constructor() FunctionsClient(router) ConfirmedOwner(msg.sender) ERC721("Genwuine Model", "GM") {}
+     address registryAddress;
+
+     constructor(address _registryAddress) FunctionsClient(router) ConfirmedOwner(msg.sender) ERC721("Poster Ad", "PAd") {
+        registryAddress = _registryAddress;
+     }
 
     using FunctionsRequest for FunctionsRequest.Request;
-
-    uint256 public _modelId = 0;
+    uint256 public _tokenId = 0;
 
     event ModelMinted(
         uint256 indexed tokenId
@@ -24,9 +29,9 @@ contract ModelGen is FunctionsClient, ConfirmedOwner, ERC721URIStorage {
     bytes32 public s_lastRequestId;
     bytes public s_lastResponse;
     bytes public s_lastError;
-    
-    bool public isFullfilled = true;
-    address public currentMinter;
+
+    address public s_lastMint_address;
+    bool public isFullfilled;
 
     error UnexpectedRequestID(bytes32 requestId);
 
@@ -39,10 +44,12 @@ contract ModelGen is FunctionsClient, ConfirmedOwner, ERC721URIStorage {
     uint32 gasLimit = 300000;
     string public result;
 
-    string modelImgAPI =
+    string AdImg =
         "const prompt = args[0];"
+        "const modelImage = args[1];"
+        "const productImage = args[2];"
         "const apiResponse = await Functions.makeHttpRequest({"
-        "url: `https://modelgen.pythonanywhere.com/generate-model-img/${prompt}`"
+        "url: `https://adgen.pythonanywhere.com/generate-ad-poster/${prompt}/${modelImage}/${productImage}`"
         "});"
         "if (apiResponse.error) {"
         "throw Error('Request failed');"
@@ -50,13 +57,13 @@ contract ModelGen is FunctionsClient, ConfirmedOwner, ERC721URIStorage {
         "const { data } = apiResponse;"
         "return Functions.encodeString(data[0].url);";
 
-    function createModelNFT(
+    function createImgAdNFT(
+        address _mint_address,
         string[] calldata args
-    ) public returns (bytes32 requestId) {
+    ) public returns (uint256) {
         isFullfilled = false;
-        // currentMinter = 
         FunctionsRequest.Request memory req;
-        req.initializeRequestForInlineJavaScript(modelImgAPI);
+        req.initializeRequestForInlineJavaScript(AdImg);
         
         if (args.length > 0) req.setArgs(args);
         s_lastRequestId = _sendRequest(
@@ -65,7 +72,9 @@ contract ModelGen is FunctionsClient, ConfirmedOwner, ERC721URIStorage {
             gasLimit,
             donID
         );
-        return s_lastRequestId;
+
+        s_lastMint_address = _mint_address;
+        return _tokenId;
     }
 
     function fulfillRequest(
@@ -77,15 +86,15 @@ contract ModelGen is FunctionsClient, ConfirmedOwner, ERC721URIStorage {
             revert UnexpectedRequestID(requestId);
         }
         result = string(response);
-        ++_modelId;
+        ++_tokenId;
         string memory tokenURI = result;
-        uint256 newTokenId = _modelId;
-        _mint(msg.sender, newTokenId);
+        uint256 newTokenId = _tokenId;
+        _mint(s_lastMint_address, newTokenId);
         _setTokenURI(newTokenId, tokenURI);
 
         s_lastResponse = response;
         s_lastError = err;
         isFullfilled = true;
-        emit ModelMinted(_modelId);
+        emit ModelMinted(_tokenId);
     }
 }
