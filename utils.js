@@ -5,8 +5,6 @@ import { registryAddress, registryAbi, modelGenAbi, UriABI } from "./config";
 import axios from "axios";
 import { Web3Storage } from "web3.storage";
 import Moralis from "moralis";
-// import { init, fetchQuery } from "@airstack/node";
-// import AWS from "aws-sdk";
 
 let allModels = [];
 
@@ -152,6 +150,8 @@ export async function callStaticContentGenAPI(
 ) {
     const _modelImage = await getModelImageFromTBA(tba);
 
+    console.log("model image resolver", _modelImage)
+
     const apiUrl = "https://adgen.pythonanywhere.com/generate-ad-poster/";
     try {
         const payload = {
@@ -208,9 +208,6 @@ export async function callFineTuneAPI(_generatedImage, _prompt) {
         console.log("payload", payload);
 
         const res1 = await axios.post(apiUrl, payload);
-        // const res1Output = res1.data.objects;
-        // const res2 = await axios.get(res1Output);
-        // console.log(res2);
         console.log("res1", res1);
         return res1;
     } catch (error) {
@@ -218,35 +215,6 @@ export async function callFineTuneAPI(_generatedImage, _prompt) {
         return null;
     }
 }
-
-// export async function fetchDeadLink() {
-//     AWS.config.update({
-//         region: "ap-south-1", // replace with your AWS region
-//         credentials: new AWS.Credentials(
-//             "AKIAZYCGGJIZTPOLTE77",
-//             "4Z66sxa0D+OWdvkzpZJxdmTzxDmK9P6s8dd7Bv+a"
-//         ), // replace with your AWS credentials
-//     });
-
-//     const s3 = new AWS.S3();
-
-//     const params = {
-//         Bucket: "bucketforadgen",
-//         Key: "change_the_girl's_hairstyle_ad_poster.png",
-//     };
-
-//     const apiUrl =
-//         "https://bucketforadgen.s3.amazonaws.com/change_the_girl's_hairstyle_ad_poster.png";
-
-//     try {
-//         const response = await s3.getObject(params).promise();
-//         const jsonData = JSON.parse(response.Body.toString("utf-8"));
-//         console.log("JSON Data:", jsonData);
-//     } catch (error) {
-//         console.error("Error fetching url data:", error.message);
-//         return null;
-//     }
-// }
 
 export async function createModelGenImage(_prompt) {
     const image = await callModelGenAPI(_prompt);
