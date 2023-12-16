@@ -5,6 +5,11 @@ import { registryAddress, registryAbi, modelGenAbi, UriABI } from "./config";
 import axios from "axios";
 import { Web3Storage } from "web3.storage";
 import Moralis from "moralis";
+import {
+    DataverseConnector,
+    SYSTEM_CALL,
+    RESOURCE,
+} from "@dataverse/dataverse-connector";
 
 let allModels = [];
 
@@ -13,6 +18,8 @@ fetchAllModels();
 Moralis.start({
     apiKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6ImRjOWNmODBkLTQwMzctNGNiNS04ZjQ4LTRhYTdjNGE0YmZhZiIsIm9yZ0lkIjoiMjQ4MTk0IiwidXNlcklkIjoiMjUxMzY2IiwidHlwZUlkIjoiMWJjNTA3Y2MtYTMxZC00MTliLWI0OGEtZTVkOGUzYmMwODFiIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE2ODQxODc2OTcsImV4cCI6NDgzOTk0NzY5N30.nh4cnHbpY8g9HhG-gZ3wNtsxaQAbLrv2QkMKUUz27rU",
 });
+
+// --------- Contract Instance
 
 export async function getRegistryContract(providerOrSigner) {
     const modal = new web3modal();
@@ -71,60 +78,9 @@ export async function getModelGenAddress() {
     return data;
 }
 
-export async function getModelMetadata(tokenId) {
-    const modelGenAddress = await getModelGenAddress();
-    const contract = await getModelGenContract(false, modelGenAddress);
-    const data = await contract.tokenURI(tokenId);
-    console.log("Fetched");
-    return data;
-}
+// --------- APIs
 
-async function fetch(user) {
-    const options = {
-        method: "GET",
-        url: `https://deep-index.moralis.io/api/v2/${user}/nft`,
-        params: { chain: "mumbai", format: "hex", normalizeMetadata: "false" },
-        headers: {
-            accept: "application/json",
-            "X-API-Key":
-                "ECu9sgtiXTgwMKEoJCg0xkjXfwm2R3NhOAATMBiTNIQoIzd7cAmeBibctzQyLkvY",
-        },
-    };
-
-    const data = await axios.request(options);
-    const res = await data.data.result;
-    console.log("res", res);
-    return res;
-}
-
-export async function getTokensURI(address, id) {
-    const contract = await getNftURIContract(address);
-    const uri = await contract.tokenURI(id);
-    // console.log("uri", uri)
-    return uri;
-}
-
-export async function getContentByModelId(modelId) {
-    const address = await getTBAFromModelId(modelId);
-    const data = await fetch(address);
-    console.log(data);
-    return data;
-}
-
-export async function getContentByTBA(tba) {
-    const data = await fetch(tba);
-    console.log(data);
-    return data;
-}
-
-export async function getTBAFromModelId(modelId) {
-    const contract = await getRegistryContract();
-    const data = await contract.idToModelAcc(modelId);
-    console.log(data[0]);
-    return data[0];
-}
-
-async function callModelGenAPI(_prompt) {
+export async function callModelGenAPI(_prompt) {
     const apiUrl = "https://modelgen.pythonanywhere.com/generate-model-img/";
     try {
         const payload = {
@@ -150,7 +106,7 @@ export async function callStaticContentGenAPI(
 ) {
     const _modelImage = await getModelImageFromTBA(tba);
 
-    console.log("model image resolver", _modelImage)
+    console.log("model image resolver", _modelImage);
 
     const apiUrl = "https://adgen.pythonanywhere.com/generate-ad-poster/";
     try {
@@ -173,7 +129,10 @@ export async function callStaticContentGenAPI(
 }
 
 export async function callDynamicContentGenAPI(
-    _productName, _prompt, tba, _gender
+    _productName,
+    _prompt,
+    tba,
+    _gender
 ) {
     const _modelImage = await getModelImageFromTBA(tba);
 
@@ -184,7 +143,7 @@ export async function callDynamicContentGenAPI(
             product_description: _prompt,
             model_img: _modelImage,
             model_gender: _gender,
-          };
+        };
 
         console.log("payload", payload);
 
@@ -216,10 +175,7 @@ export async function callFineTuneAPI(_generatedImage, _prompt) {
     }
 }
 
-export async function createModelGenImage(_prompt) {
-    const image = await callModelGenAPI(_prompt);
-    return image;
-}
+// --------- IPFS
 
 async function createModelURI(_name, _prompt, image) {
     // if (!_name || !_prompt || !image) return;
@@ -232,6 +188,74 @@ async function createModelURI(_name, _prompt, image) {
     return url;
 }
 
+async function createContentURI(_productImage, _prompt, image, tba) {
+    // if (!_productImage || !_prompt || !image) return;
+    const _modelId = await getModelIdByTBA(tba);
+    const data = JSON.stringify({ _productImage, _prompt, image, _modelId });
+    const files = [new File([data], "data.json")];
+    const metaCID = await uploadToIPFS(files);
+    const url = `https://ipfs.io/ipfs/${metaCID}/data.json`;
+    console.log(url);
+    return url;
+}
+
+// --------- Dataverse
+
+const dataverseConnector = new DataverseConnector();
+
+export async function login() {
+    await dataverseConnector.connectWallet();
+    const pkh = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.createCapability,
+        params: {
+            appId: "f5661a5a-cbe3-4c00-862f-cf8f8ac38899",
+            resource: RESOURCE.CERAMIC,
+        },
+    });
+    console.log("pkh:", pkh);
+    return pkh;
+}
+
+export async function uploadWithDataverse(inputText) {
+    const encrypted = JSON.stringify({
+        text: false,
+        images: false,
+        videos: false,
+    });
+
+    await dataverseConnector.connectWallet();
+    const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.createIndexFile,
+        params: {
+            modelId:
+                "kjzl6hvfrbw6c56aaaabngouspro7na03id4zdvvuax1lpakx48soehix9dnk69",
+            fileName: "test",
+            fileContent: {
+                modelVersion: "0",
+                text: inputText,
+                images: [],
+                videos: [],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                encrypted,
+            },
+        },
+    });
+
+    return res.fileContent.file.contentId;
+}
+
+const loadWithDataverse = async () => {
+    const res = await dataverseConnector.runOS({
+        method: SYSTEM_CALL.loadFile,
+        params: inputs.fileId,
+    });
+
+    return res.fileContent.content.text;
+};
+
+// --------- Contract Calls
+
 export async function createModelGenAccountCreation(_name, _prompt, image) {
     const uri = await createModelURI(_name, _prompt, image);
     const contract = await getRegistryContract(true);
@@ -241,46 +265,6 @@ export async function createModelGenAccountCreation(_name, _prompt, image) {
     console.log("Account Created successfully");
 }
 
-async function createContentURI(_productImage, _prompt, image) {
-    // const image = await callStaticContentGenAPI(_prompt);
-    // if (!_productImage || !_prompt || !image) return;
-    console.log("img:", image);
-    const data = JSON.stringify({ _productImage, _prompt, image });
-    const files = [new File([data], "data.json")];
-    const metaCID = await uploadToIPFS(files);
-    const url = `https://ipfs.io/ipfs/${metaCID}/data.json`;
-    console.log(url);
-    return url;
-}
-
-export async function getModelImageFromTBA(tba) {
-    let result;
-    allModels.filter((e) => {
-        if (e.tba == tba) {
-            console.log("modelId inside using e.modelid", e.modelId);
-            result = e.modelImg;
-            console.log("result inside the if block", result);
-        }
-        console.log("modelId out of e block", result);
-    });
-    console.log("result outside e fn", result);
-    return result;
-}
-
-export async function getModelIdByTBA(tba) {
-    let result;
-    allModels.filter((e) => {
-        if (e.tba == tba) {
-            console.log("modelId inside using e.modelid", e.modelId);
-            result = e.modelId;
-            console.log("result inside the if block", result);
-        }
-        console.log("modelId out of e block", result);
-    });
-    console.log("result outside e fn", result);
-    return result;
-}
-
 export async function createStaticContentGeneration(
     _productImage,
     _prompt,
@@ -288,7 +272,7 @@ export async function createStaticContentGeneration(
     tba
 ) {
     const _modelId = await getModelIdByTBA(tba);
-    const uri = await createContentURI(_productImage, _prompt, image);
+    const uri = await createContentURI(_productImage, _prompt, image, tba);
     console.log(_modelId, uri);
 
     const contract = await getRegistryContract(true);
@@ -319,6 +303,76 @@ export async function buyModel(modelId, _price) {
     });
     await tx.wait();
     console.log("Listed successfully");
+}
+
+// --------- Contract Fetching
+
+async function fetch(user) {
+    const options = {
+        method: "GET",
+        url: `https://deep-index.moralis.io/api/v2/${user}/nft`,
+        params: { chain: "mumbai", format: "hex", normalizeMetadata: "false" },
+        headers: {
+            accept: "application/json",
+            "X-API-Key":
+                "ECu9sgtiXTgwMKEoJCg0xkjXfwm2R3NhOAATMBiTNIQoIzd7cAmeBibctzQyLkvY",
+        },
+    };
+
+    const data = await axios.request(options);
+    const res = await data.data.result;
+    console.log("res", res);
+    return res;
+}
+
+
+
+export async function getModelImageFromTBA(tba) {
+    let result;
+    allModels.filter((e) => {
+        if (e.tba == tba) {
+            console.log("modelId inside using e.modelid", e.modelId);
+            result = e.modelImg;
+            console.log("result inside the if block", result);
+        }
+        console.log("modelId out of e block", result);
+    });
+    console.log("result outside e fn", result);
+    return result;
+}
+
+export async function getModelIdByTBA(tba) {
+    let result;
+    allModels.filter((e) => {
+        if (e.tba == tba) {
+            console.log("modelId inside using e.modelid", e.modelId);
+            result = e.modelId;
+            console.log("result inside the if block", result);
+        }
+        console.log("modelId out of e block", result);
+    });
+    console.log("result outside e fn", result);
+    return result;
+}
+
+export async function getContentByModelId(modelId) {
+    const address = await getTBAFromModelId(modelId);
+    const data = await fetch(address);
+    console.log(data);
+    return data;
+}
+
+export async function getContentByTBA(tba) {
+    const data = await fetch(tba);
+    console.log(data);
+    return data;
+}
+
+export async function getTBAFromModelId(modelId) {
+    const contract = await getRegistryContract();
+    const data = await contract.idToModelAcc(modelId);
+    console.log(data[0]);
+    return data[0];
 }
 
 export async function fetchAllModels() {
@@ -408,6 +462,8 @@ export async function fetchMyModels() {
     //     return filteredArray;
     // }
 }
+
+// --------- IPFS Instance
 
 function getAccessToken() {
     // return process.env.NEXT_PUBLIC_Web3StorageID

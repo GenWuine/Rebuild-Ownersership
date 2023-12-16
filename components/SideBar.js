@@ -36,7 +36,7 @@ export default function SideBar() {
 
                     <li>
                         <Link
-                            href="/dashboard/createcontent"
+                            href="/dashboard/createimage"
                             className={
                                 "flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 " +
                                 (isActive("/dashboard/createcontent")
@@ -70,7 +70,24 @@ export default function SideBar() {
                     </li>
                     <li>
                         <Link
-                            href="/dashboard/fetchmodels"
+                            href="/dashboard/fetchimages"
+                            className={
+                                "flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 " +
+                                (isActive("/dashboard/nfts")
+                                    ? "bg-gray-700"
+                                    : "")
+                            }
+                        >
+                            <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
+                            <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
+                            <span className="flex-1 ml-3 whitespace-nowrap">
+                                My Post
+                            </span>
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            href="/dashboard/fetchaccounts"
                             className={
                                 "flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 " +
                                 (isActive("/dashboard/nfts")
@@ -98,24 +115,7 @@ export default function SideBar() {
                             <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
                             <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
                             <span className="flex-1 ml-3 whitespace-nowrap">
-                                Content
-                            </span>
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
-                            href="/dashboard/analytics"
-                            className={
-                                "flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 " +
-                                (isActive("/dashboard/nfts")
-                                    ? "bg-gray-700"
-                                    : "")
-                            }
-                        >
-                            <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
-                            <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
-                            <span className="flex-1 ml-3 whitespace-nowrap">
-                                Analytics
+                                Content by Id
                             </span>
                         </Link>
                     </li>

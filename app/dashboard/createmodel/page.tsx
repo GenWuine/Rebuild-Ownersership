@@ -1,9 +1,8 @@
 "use client";
 import {
-    createModelGenImage,
+    callModelGenAPI,
     createModelGenAccountCreation,
     callFineTuneAPI,
-    fetchDeadLink,
 } from "@/utils";
 import NavBar from "@/components/NavBar";
 import SideBar from "@/components/SideBar";
@@ -37,7 +36,7 @@ const CreateModel = () => {
 
     async function modelGenImageGenerationCall() {
         setLoaders((e) => ({ ...e, generateLoader: true }));
-        const image = await createModelGenImage(formInput.modelPrompt);
+        const image = await callModelGenAPI(formInput.modelPrompt);
         setGeneratedImage(image);
         setLoaders((e) => ({ ...e, generateLoader: false }));
     }
