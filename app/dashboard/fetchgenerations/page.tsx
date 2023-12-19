@@ -6,23 +6,14 @@ import { fetchAllModels } from "@/utils";
 import { useEffect, useState } from "react";
 import SideBar from "@/components/SideBar";
 import NavBar from "@/components/NavBar";
-import ChatButton from "@/components/ChatButton"
-import {getUserAddress} from "@/utils"
 
 const FetchModels = () => {
     const [data, setData] = useState<any>([]);
-    const [sender, setSender] = useState<any>('')
+    const [sender, setSender] = useState<any>("");
 
     useEffect(() => {
         fetchAllModelsData();
-        getSender();
     }, []);
-
-    async function getSender() {
-        const sndr = await getUserAddress();
-        console.log('sndr', sndr)
-        setSender(sndr)
-    }
 
     async function fetchAllModelsData() {
         const results = await fetchAllModels();
@@ -31,40 +22,36 @@ const FetchModels = () => {
     }
 
     const createChatroom = async () => {
-        window.location.href
-    }
+        window.location.href;
+    };
 
     function LinkoCard({
         name,
         tba,
         image,
-        owner
+        prompt,
     }: {
         name: any;
         tba: any;
         image: any;
-        owner: any;
+        prompt: any;
     }) {
         return (
-            <div className="mt-10 relative">
-                <div className="flex gap-5 block w-3/4 relative p-6 mx-auto cursor-pointer bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-                    <img src={image} width="100px" />
-                    {/* <p>Model Id: {prop.modelId}</p> */}
-                    <div className="w-[80%]">
-                        <div className="flex">
-                            <div>
-                                <p className="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                    Model Name: {name}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="flex justify-between">
-                            <p className="font-normal text-gray-700 dark:text-gray-400 mt-2">
-                                TBA Address: {tba}
+            <div className="flex justify-center mt-10 w-[100%]">
+                <div className="flex w-[70%] gap-5 p-6 cursor-pointer bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                    <img src={image} width="300px" />
+                    <div className="flex flex-col justify-between">
+                        <div className="w-[80%]">
+                            <p className="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                {name}
                             </p>
-                            <ChatButton sender={sender} receiver={owner}/>
+                            <p className="font-normal text-gray-700 dark:text-gray-400 mt-2">
+                                Prompt: {prompt}
+                            </p>
                         </div>
+                        <button className=" text-center h-[50px] w-[140px] inline-flex justify-center items-center px-3 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                            Post
+                        </button>
                     </div>
                 </div>
             </div>
@@ -80,13 +67,18 @@ const FetchModels = () => {
                     {/* <p className="font-normal text-gray-700 dark:text-gray-400 mt-2">
                     Model Gen Address: {modelGenAddress}
                 </p> */}
+                    <div className="mt-10">
+                        <h1 className="font-bold text-3xl text-center">
+                            Create Post
+                        </h1>
+                    </div>
                     {data.map((item: any, i: any) => (
                         <LinkoCard
                             key={i}
-                            owner={item.owner}
                             name={item.name}
                             tba={item.tba}
                             image={item.modelImg}
+                            prompt={item.prompt}
                         />
                     ))}
                 </div>

@@ -2,9 +2,10 @@
 
 import {
     callStaticContentGenAPI,
-    createStaticContentGeneration,
+    uploadWithDataverse,
     callFineTuneAPI,
     uploadToIPFS,
+    pushStreamIdCall,
 } from "@/utils";
 import NavBar from "@/components/NavBar";
 import SideBar from "@/components/SideBar";
@@ -30,42 +31,65 @@ const CreateContent = () => {
     });
     const [generatedImage, setGeneratedImage] = useState("");
 
-    async function contentGenImageGenerationCall() {
+    async function callImageGenAPI() {
         setLoading(true)
 
-        const image = await callStaticContentGenAPI(
+        const imageLink = await callStaticContentGenAPI(
             formInput.productDescription,
             formInput.productImage,
             formInput.tba,
             formInput.name
         );
 
-        setGeneratedImage(image);
+        const streamId = uploadWithDataverse(imageLink)
+        await pushStreamIdCall(streamId)
+
+        setGeneratedImage(imageLink);
         setLoading(false);
+
+        // const dataFormation = {
+        //     description: formInput.productDescription, 
+        //     image: formInput.productImage,
+        //     tba: formInput.tba,
+        //     name: formInput.name
+        // }
+
+        // const data = JSON.stringify({             formInput.productDescription,
+        //     formInput.productImage,
+        //     formInput.tba,
+        //     formInput.name });
+
+        // const files = [new File([dataFormation], "data.json")];
+
+        // const metaCID = await uploadToIPFS(files);
+        // const url = `https://ipfs.io/ipfs/${metaCID}/data.json`;
+
+        // const arrayFormation = [url] 
+
     }
 
-    async function contentGenCreationCall() {
-        setLoaders((e) => ({ ...e, createAccountLoader: true }));
-        await createStaticContentGeneration(
-            formInput.productImage,
-            formInput.productDescription,
-            generatedImage,
-            formInput.tba
-        );
+    // async function contentGenCreationCall() {
+    //     setLoaders((e) => ({ ...e, createAccountLoader: true }));
+    //     await createStaticContentGeneration(
+    //         formInput.productDescription,
+    //         formInput.productImage,
+    //         generatedImage,
+    //         formInput.tba
+    //     );
 
-        // initialize xmtp
-        toast.success("Content Published to TBA!", {
-            position: "bottom-left",
-            autoClose: 5000,
-            hideProgressBar: true,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-        });
-        setLoaders((e) => ({ ...e, createAccountLoader: false }));
-    }
+    //     // initialize xmtp
+    //     toast.success("Content Published to TBA!", {
+    //         position: "bottom-left",
+    //         autoClose: 5000,
+    //         hideProgressBar: true,
+    //         closeOnClick: true,
+    //         pauseOnHover: true,
+    //         draggable: true,
+    //         progress: undefined,
+    //         theme: "dark",
+    //     });
+    //     setLoaders((e) => ({ ...e, createAccountLoader: false }));
+    // }
 
     async function handleImageChange() {
         const fileInput: any = document.getElementById("cover");
@@ -217,7 +241,7 @@ const CreateContent = () => {
                                 <div className="flex justify-end">
                                     <button
                                         className="flex w-[14%] justify-center py-4 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                        onClick={contentGenImageGenerationCall}
+                                        onClick={callImageGenAPI}
                                     >
                                         {/* <span className="sr-only">Search</span> */}
 

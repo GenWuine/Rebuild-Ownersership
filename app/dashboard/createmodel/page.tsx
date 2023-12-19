@@ -1,8 +1,9 @@
 "use client";
 import {
-    callModelGenAPI,
-    createModelGenAccountCreation,
+    callCharacterGenAPI,
+    createCharacterCall,
     callFineTuneAPI,
+    uploadToDataverse,
 } from "@/utils";
 import NavBar from "@/components/NavBar";
 import SideBar from "@/components/SideBar";
@@ -36,20 +37,22 @@ const CreateModel = () => {
 
     async function modelGenImageGenerationCall() {
         setLoaders((e) => ({ ...e, generateLoader: true }));
-        const image = await callModelGenAPI(formInput.modelPrompt);
-        setGeneratedImage(image);
+
+        // const image = await callCharacterGenAPI(formInput.modelPrompt);
+        // setGeneratedImage(image);
+        setGeneratedImage("https://imgs.search.brave.com/bgJsnos8NuXZO-MbgYid-8PGseiam1ag7u95MErLSVM/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9tLm1l/ZGlhLWFtYXpvbi5j/b20vaW1hZ2VzL00v/TVY1QlpURXhOekEx/TjJRdE5qVTBNaTAw/TlRGbExXSm1OalF0/WTJaaU9UaGhNV0Zr/T0dVMlhrRXlYa0Zx/Y0dkZVFWUm9hWEpr/VUdGeWRIbEpibWRs/YzNScGIyNVhiM0py/Wm14dmR3QEAuX1Yx/X1FMNzVfVVg1MDBf/Q1IwLDAsNTAwLDI4/MV8uanBn")
+
         setLoaders((e) => ({ ...e, generateLoader: false }));
     }
 
     async function modelGenAccountCreationCall() {
         setLoaders((e) => ({ ...e, createAccountLoader: true }));
-        await createModelGenAccountCreation(
-            formInput.modelName,
-            formInput.modelPrompt,
-            generatedImage
-        );
-        // initialize xmtp
-        toast.success("TBAI Account Created!", {
+
+        const uri = uploadToDataverse(generatedImage)
+        // const uri = "https://imgs.search.brave.com/bgJsnos8NuXZO-MbgYid-8PGseiam1ag7u95MErLSVM/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9tLm1l/ZGlhLWFtYXpvbi5j/b20vaW1hZ2VzL00v/TVY1QlpURXhOekEx/TjJRdE5qVTBNaTAw/TlRGbExXSm1OalF0/WTJaaU9UaGhNV0Zr/T0dVMlhrRXlYa0Zx/Y0dkZVFWUm9hWEpr/VUdGeWRIbEpibWRs/YzNScGIyNVhiM0py/Wm14dmR3QEAuX1Yx/X1FMNzVfVVg1MDBf/Q1IwLDAsNTAwLDI4/MV8uanBn"
+        await createCharacterCall(uri, formInput.modelName);
+
+        toast.success("GenHub Character Created!", {
             position: "bottom-left",
             autoClose: 5000,
             hideProgressBar: true,
@@ -99,7 +102,7 @@ const CreateModel = () => {
                     <div className="text-white">
                         <div className="mt-10">
                             <h1 className="font-bold text-3xl text-center">
-                                Generate Account
+                                Create Account
                             </h1>
                         </div>
 
