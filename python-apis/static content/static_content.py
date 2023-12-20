@@ -5,6 +5,7 @@ import requests
 import json
 import time
 import boto3
+import uuid
 from dotenv import load_dotenv
 
 app = Flask(__name__)
@@ -30,7 +31,7 @@ url_init_image = "https://cloud.leonardo.ai/api/rest/v1/init-image"
 url_generations = "https://cloud.leonardo.ai/api/rest/v1/generations"
 
 # Set model ID for Leonardo Creative
-model_id = "6bef9f1b-29cb-40c7-b9df-32b51c1f67d3"
+model_id = "e316348f-7773-490e-adcd-46757c738eb7"
 
 # Set up the S3 client
 s3 = boto3.client(
@@ -65,15 +66,18 @@ def download_image(url):
 
 def generate_image_links(generated_image_urls):
     for idx, image_url in enumerate(generated_image_urls):
-        print(f"Open Image {idx + 1}: {image_url}")
+        print(f"Open-Image-{idx + 1}: {image_url}")
+
 
 def upload_to_s3(image_bytes, user_prompt):
     try:
+        # Generate a unique identifier (UUID)
+        unique_identifier = str(uuid.uuid4())
         # Replace spaces with underscores in the product name
         user_prompt_cleaned = user_prompt.replace(" ", "_")
 
         # Set S3 key based on cleaned product name
-        s3_key = f"{user_prompt_cleaned}_ad_poster.png"
+        s3_key = f"{user_prompt_cleaned}_generated_img_{unique_identifier}.png"
 
         # Upload the image to S3 with the correct content type
         s3.put_object(Body=image_bytes, Bucket=S3_BUCKET_NAME, Key=s3_key, ContentType="image/jpg")
@@ -112,16 +116,26 @@ def generate_images():
         response_upload = requests.post(url_upload_image, files={'file': ('image.png', image_bytes)}, data=fields)
         response_upload.raise_for_status()  # Check for HTTP errors
 
-        # # Check content type of the upload response
-        # content_type_upload = response_upload.headers.get('Content-Type', 'image/png')
-
         # Generate with an image prompt
         payload_generations = {
-            "height": 512,
+
+            "height": 832,
             "modelId": model_id,
             "prompt": user_prompt,
-            "width": 512,
-            "imagePrompts": [image_id]
+            "width": 640,
+            "alchemy": False,
+            "guidance_scale": 7,
+            "imagePrompts": [image_id],
+            "init_strength": 0.71,
+            "num_images": 2,
+            "presetStyle": "LEONARDO",
+            "promptMagic": False,
+            "sd_version": "v1_5",
+            "scheduler": "LEONARDO",
+            "photoReal": False,
+            "imagePromptWeight": 0.67,
+            
+
         }
 
         response_generate = requests.post(url_generations, json=payload_generations, headers=headers)
@@ -150,9 +164,17 @@ def generate_images():
             generated_image_urls.append(upload_to_s3(image_bytes, f"{user_prompt}generated{idx}"))
 
         # Print image URLs in the console
-        generate_image_links(generated_image_urls)
-
-        return jsonify({"objects": generated_image_urls})
+        # generate_image_links(generated_image_urls)
+            # return jsonify({"objects": generated_image_urls})
+        generations_string = [
+            f"Open-Image-{idx + 1}: {image_url}"
+            for idx, image_url in enumerate(generated_image_urls)
+        ]
+            
+            
+        return jsonify({"objects": generations_string})
+        
+        
 
     except requests.exceptions.RequestException as e:
         return jsonify({"error": str(e)})

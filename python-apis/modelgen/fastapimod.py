@@ -1,10 +1,14 @@
-from flask import Flask, render_template, request, jsonify
-from flask_cors import CORS,cross_origin
+#"""this is module doc string for flask io""""
+import os
+import uuid
 from io import BytesIO
+
+from flask import Flask, render_template, request,jsonify
+from flask_cors import CORS,cross_origin
 
 import requests
 import boto3
-import os
+
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -52,7 +56,7 @@ def generate_model_img():
         data = request.get_json()
         model_description  = data["description"]
 
-        model_description = request.json.get("description")
+        # model_description = request.json.get("description")
 
 
         dalle_api_prompt = f"Generate a realistic image of a model captured with a Nikon D850 and a Nikon AF-S NIKKOR 70-200mm f/2.8E FL ED VR lens, lit with high-key lighting to create a soft and ethereal feel, with a shallow depth of field --ar 2:3- with the following attributes: {model_description}"
@@ -63,7 +67,7 @@ def generate_model_img():
             quality="hd",
             n=1,
         )
-
+        
 
         image_content = BytesIO(requests.get(dalle_response.data[0].url).content)
 
@@ -78,12 +82,12 @@ def generate_model_img():
 def upload_to_s3(image_content, model_description):
     try:
 
-
+        unique_identifier=str(uuid.uuid4())
         model_description_cleaned = model_description.replace(" ", "_")
 
         s3_bucket_name = 'bucketforadgen'
 
-        s3_key = f"{model_description_cleaned}_model_img.png"
+        s3_key = f"{model_description_cleaned}_model_img_{unique_identifier}.png"
 
 
         s3.put_object(Body=image_content.getvalue(), Bucket=s3_bucket_name, Key=s3_key,ContentType='image/png')

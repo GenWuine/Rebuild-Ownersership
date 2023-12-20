@@ -1,0 +1,12 @@
+#local env files
+.env
+.vscode
+
+
+#templates for testing purposes
+/templates
+
+#python cache
+/__pycache__
+/payload
+/working code

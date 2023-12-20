@@ -1,0 +1,11 @@
+#local env files
+.env
+
+#some backups
+/oldattempts
+/__pycache__
+
+#templates for testing purposes
+/templates
+/static
+

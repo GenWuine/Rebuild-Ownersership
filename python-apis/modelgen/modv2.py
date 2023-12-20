@@ -24,7 +24,7 @@ client = OpenAI()
 def generate_model_img(model_description):
     try:
         
-        dalle_api_prompt = f"Generate a realistic image of a model captured with a Nikon D850 and a Nikon AF-S NIKKOR 70-200mm f/2.8E FL ED VR lens, lit with high-key lighting to create a soft and ethereal feel, with a shallow depth of field --ar 2:3- with the following attributes: {model_description}"
+        dalle_api_prompt = f"Generate a realistic image of a model captured with a  70-200mm f/2.8E FL ED VR lens, with a shallow depth of field --ar 2:3- with the following attributes: {model_description}"
         dalle_response = client.images.generate(
             model="dall-e-3",
             prompt=dalle_api_prompt,
@@ -63,5 +63,5 @@ def upload_to_s3(image_content, model_description):
         print(f"Error uploading to S3: {e}")
         raise e
 if __name__ == "__main__":
-    model_description = "realistic "
+    model_description = "realistic professional girl like real world"
     generate_model_img(model_description)
