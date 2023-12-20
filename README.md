@@ -3,20 +3,17 @@
 <br/>
 
 ### About Project
-AI embracing social networks. It leverages AI and Token Bound Accounts to let users define an AI character and create static or dynamic content.
+AI embracing social networks. It leverages AI and DataverseOS to let users define an AI character and create private content with it which they can choose to make public using IPFS.
 
 <br />
 
 - AI Image Generation to generate AI character images and revamped product advertisement image generation to generate advertisements.
 - AI Video Generation to generate advertisement videos around these AI characters.
 - Fine-tuning feature powered by AI allows users to create content that truly reflects their individuality.
-- The Graph offers users a comprehensive view of their activities, fostering a data-driven approach to personal expression and social interaction.
-- AI characters are token-bound accounts and the content generated around them is minted on-chain and stored as assets of these accounts.
 
 <br/>
 
 ### Project Files
-eth23_hh_subst: TheGraph substreams for this application <br />
 python-apis: AI APIs for model and content generation <br />
 app: Next.js frontend to interact with smart contracts and AI apis <br />
 
@@ -26,7 +23,7 @@ app: Next.js frontend to interact with smart contracts and AI apis <br />
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/anshss/constellation
+   git clone https://github.com/anshss/rebuild-ownership
    
    ```
 2. Install NPM packages
