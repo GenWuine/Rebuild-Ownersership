@@ -13,7 +13,7 @@ export default function NavBar() {
                     </div>
                     <div className="flex items-center">
                         <div className="flex items-center ml-3">
-                            <button onClick={loginDataverse}>dataverse</button>
+                            {/* <button onClick={loginDataverse}>dataverse</button> */}
                             <ConnectButton chainStatus="icon" accountStatus="avatar"/>
                         </div>
                     </div>

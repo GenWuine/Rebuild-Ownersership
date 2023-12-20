@@ -1,11 +1,12 @@
 "use client";
 
 import {
-    callStaticContentGenAPI,
-    uploadWithDataverse,
+    // callStaticContentGenAPI,
+    callImageGenAPI,
     callFineTuneAPI,
+    createGenerationCall,
     uploadToIPFS,
-    pushStreamIdCall,
+    uploadToDataverse,
 } from "@/utils";
 import NavBar from "@/components/NavBar";
 import SideBar from "@/components/SideBar";
@@ -19,7 +20,7 @@ const CreateContent = () => {
         productDescription: "a fizzy cold drink",
         productImage: "https://ipfs.io/ipfs/bafybeibtrzoyaj4o2uae6jog5bovviatim5airp73g7gpiaf7daopjq5uu/GUEST_a0ca8b92-b8ef-4f37-9903-f103ace02e6e.png",
         name: "Mountain Dew",
-        tba: "0x7779DB07fb8C95bc3c58818a23D5d771DEB9c354",
+        id: "2",
         fineTunePrompt: "test-prompt",
 
     });
@@ -31,32 +32,35 @@ const CreateContent = () => {
     });
     const [generatedImage, setGeneratedImage] = useState("");
 
-    async function callImageGenAPI() {
+    async function callImageGenAPICall() {
         setLoading(true)
 
-        const imageLink = await callStaticContentGenAPI(
-            formInput.productDescription,
-            formInput.productImage,
-            formInput.tba,
-            formInput.name
-        );
+        // const imageLink = await callImageGenAPI(
+        //     formInput.productDescription,
+        //     formInput.productImage,
+        //     formInput.id,
+        //     formInput.name
+        // );
 
-        const streamId = uploadWithDataverse(imageLink)
-        await pushStreamIdCall(streamId)
+        const imageLink = "https://imgs.search.brave.com/bgJsnos8NuXZO-MbgYid-8PGseiam1ag7u95MErLSVM/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9tLm1l/ZGlhLWFtYXpvbi5j/b20vaW1hZ2VzL00v/TVY1QlpURXhOekEx/TjJRdE5qVTBNaTAw/TlRGbExXSm1OalF0/WTJaaU9UaGhNV0Zr/T0dVMlhrRXlYa0Zx/Y0dkZVFWUm9hWEpr/VUdGeWRIbEpibWRs/YzNScGIyNVhiM0py/Wm14dmR3QEAuX1Yx/X1FMNzVfVVg1MDBf/Q1IwLDAsNTAwLDI4/MV8uanBn"
 
         setGeneratedImage(imageLink);
         setLoading(false);
 
+        // const streamId = uploadWithDataverse(imageLink)
+        // await pushStreamIdCall(streamId)
+
+
         // const dataFormation = {
         //     description: formInput.productDescription, 
         //     image: formInput.productImage,
-        //     tba: formInput.tba,
+        //     id: formInput.id,
         //     name: formInput.name
         // }
 
         // const data = JSON.stringify({             formInput.productDescription,
         //     formInput.productImage,
-        //     formInput.tba,
+        //     formInput.id,
         //     formInput.name });
 
         // const files = [new File([dataFormation], "data.json")];
@@ -68,28 +72,32 @@ const CreateContent = () => {
 
     }
 
-    // async function contentGenCreationCall() {
-    //     setLoaders((e) => ({ ...e, createAccountLoader: true }));
-    //     await createStaticContentGeneration(
-    //         formInput.productDescription,
-    //         formInput.productImage,
-    //         generatedImage,
-    //         formInput.tba
-    //     );
+    async function createGeneration() {
+        setLoaders((e) => ({ ...e, createAccountLoader: true }));
 
-    //     // initialize xmtp
-    //     toast.success("Content Published to TBA!", {
-    //         position: "bottom-left",
-    //         autoClose: 5000,
-    //         hideProgressBar: true,
-    //         closeOnClick: true,
-    //         pauseOnHover: true,
-    //         draggable: true,
-    //         progress: undefined,
-    //         theme: "dark",
-    //     });
-    //     setLoaders((e) => ({ ...e, createAccountLoader: false }));
-    // }
+        const streamId = await uploadToDataverse(generatedImage)
+
+        await createGenerationCall(
+            formInput.id,
+            streamId
+            // formInput.productDescription,
+            // formInput.productImage,
+            // generatedImage,
+            // formInput.id
+            );
+
+        toast.success("Generation published to your account!", {
+            position: "bottom-left",
+            autoClose: 5000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+        });
+        setLoaders((e) => ({ ...e, createAccountLoader: false }));
+    }
 
     async function handleImageChange() {
         const fileInput: any = document.getElementById("cover");
@@ -219,19 +227,19 @@ const CreateContent = () => {
 
                                 <div className="flex">
                                     <div className="w-[12%] justify-center flex-shrink-0 cursor-default z-10 inline-flex items-center py-4 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-l-lg focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700  dark:focus:ring-gray-700 dark:text-gray-400 dark:border-gray-600">
-                                        <p>TBA</p>
+                                        <p>Id</p>
                                     </div>
                                     <div className="relative w-full">
                                         <input
                                             type="search"
                                             className="block p-4 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-r-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-l-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
-                                            placeholder="Enter your TBA Address"
+                                            placeholder="Enter your id Address"
                                             required
-                                            value={formInput.tba}
+                                            value={formInput.id}
                                             onChange={(e) => {
                                                 setFormInput({
                                                     ...formInput,
-                                                    tba: e.target.value,
+                                                    id: e.target.value,
                                                 });
                                             }}
                                         />
@@ -241,7 +249,7 @@ const CreateContent = () => {
                                 <div className="flex justify-end">
                                     <button
                                         className="flex w-[14%] justify-center py-4 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                        onClick={callImageGenAPI}
+                                        onClick={callImageGenAPICall}
                                     >
                                         {/* <span className="sr-only">Search</span> */}
 
@@ -334,7 +342,7 @@ const CreateContent = () => {
                                         <div className="flex justify-end">
                                             <button
                                                 className="flex w-[40%] justify-center py-4 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                                onClick={contentGenCreationCall}
+                                                onClick={createGeneration}
                                             >
                                                 {!loaders.createAccountLoader ? (
                                                     <span>Publish Content</span>

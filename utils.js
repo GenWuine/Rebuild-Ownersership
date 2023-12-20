@@ -1,23 +1,23 @@
 "use client";
 import web3modal from "web3modal";
 import { ethers } from "ethers";
-import { registryAddress, registryAbi, modelGenAbi, UriABI } from "./config";
+import { registryAddress, registryAbi } from "./config";
 import axios from "axios";
 import { Web3Storage } from "web3.storage";
-import Moralis from "moralis";
 import {
     DataverseConnector,
     SYSTEM_CALL,
     RESOURCE,
 } from "@dataverse/dataverse-connector";
 
-let allModels = [];
+let allCharacters = [];
+let generations = [];
+// let allGenerations = [];
+// let generations = [];
 
-// fetchAllModels();
+// fetchAllCharacters();
 
-// Moralis.start({
-//     apiKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6ImRjOWNmODBkLTQwMzctNGNiNS04ZjQ4LTRhYTdjNGE0YmZhZiIsIm9yZ0lkIjoiMjQ4MTk0IiwidXNlcklkIjoiMjUxMzY2IiwidHlwZUlkIjoiMWJjNTA3Y2MtYTMxZC00MTliLWI0OGEtZTVkOGUzYmMwODFiIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE2ODQxODc2OTcsImV4cCI6NDgzOTk0NzY5N30.nh4cnHbpY8g9HhG-gZ3wNtsxaQAbLrv2QkMKUUz27rU",
-// });
+// fetchallCharacters();
 
 // --------- Contract Instance
 
@@ -42,41 +42,12 @@ export async function getRegistryContract(providerOrSigner) {
     return contract;
 }
 
-// export async function getModelGenContract(providerOrSigner, address) {
-//     const modal = new web3modal();
-//     const connection = await modal.connect();
-//     const provider = new ethers.providers.Web3Provider(connection);
-//     const contract = new ethers.Contract(address, modelGenAbi, provider);
-//     if (providerOrSigner == true) {
-//         const signer = provider.getSigner();
-//         const contract = new ethers.Contract(address, modelGenAbi, signer);
-//         return contract;
-//     }
-//     return contract;
-// }
-
-// export async function getNftURIContract(_contractAddress) {
-//     const modal = new web3modal();
-//     const connection = await modal.connect();
-//     const provider = new ethers.providers.Web3Provider(connection);
-//     const signer = provider.getSigner();
-//     const nftContract = new ethers.Contract(_contractAddress, UriABI, signer);
-//     return nftContract;
-// }
-
 export async function getUserAddress() {
     const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
     });
     return accounts[0];
 }
-
-// export async function getModelGenAddress() {
-//     const contract = await getRegistryContract();
-//     const data = await contract.modelGen();
-//     console.log("Fetched");
-//     return data;
-// }
 
 // --------- APIs
 
@@ -98,15 +69,12 @@ export async function callCharacterGenAPI(_prompt) {
     }
 }
 
-export async function callImageGenAPI(
-    _prompt,
-    _productImage,
-    tba,
-    _name
-) {
-    const _modelImage = await getModelImageFromTBA(tba);
+export async function callImageGenAPI(_prompt, _productImage, _id, _name) {
+    // const _modelImage = await getCharacterURIFromId(_id);
+    const streamId = allCharacters[_id - 1].uri;
+    const _modelImage = await loadWithDataverse(streamId);
 
-    console.log("model image resolver", _modelImage);
+    console.log("model image", _modelImage);
 
     const apiUrl = "https://adgen.pythonanywhere.com/generate-ad-poster/";
     try {
@@ -120,7 +88,7 @@ export async function callImageGenAPI(
         console.log("payload", payload);
 
         const response = await axios.post(apiUrl, payload);
-        console.log(response);
+        console.log("response", response);
         return response.data.s3_public_url;
     } catch (error) {
         console.error("Error fetching cat data:", error.message);
@@ -128,12 +96,7 @@ export async function callImageGenAPI(
     }
 }
 
-export async function callVideoGenAPI(
-    _productName,
-    _prompt,
-    tba,
-    _gender
-) {
+export async function callVideoGenAPI(_productName, _prompt, tba, _gender) {
     const _modelImage = await getModelImageFromTBA(tba);
 
     const apiUrl = "http://127.0.0.1:5000/generate-vid/";
@@ -217,7 +180,7 @@ export async function loginDataverse() {
 }
 
 export async function uploadToDataverse(inputText) {
-    await loginDataverse()
+    await loginDataverse();
 
     const encrypted = JSON.stringify({
         text: false,
@@ -244,14 +207,14 @@ export async function uploadToDataverse(inputText) {
         },
     });
 
-    console.log(res)
-    console.log(res.fileContent.file.contentId)
+    console.log(res);
+    console.log(res.fileContent.file.contentId);
 
     return res.fileContent.file.contentId;
 }
 
 export const loadWithDataverse = async (streamId) => {
-    await loginDataverse()
+    await loginDataverse();
 
     const res = await dataverseConnector.runOS({
         method: SYSTEM_CALL.loadFile,
@@ -267,281 +230,122 @@ export async function createCharacterCall(_uri, _characterName) {
     const contract = await getRegistryContract(true);
     const tx = await contract.createCharacter(_uri, _characterName);
     await tx.wait();
-    console.log("Character created")
+    console.log("Character created");
 }
 
 export async function createGenerationCall(_characterId, _streamId) {
     const contract = await getRegistryContract(true);
     const tx = await contract.createGeneration(_characterId, _streamId);
     await tx.wait();
-    console.log("Character created")
+    console.log("Character created");
 }
 
-export async function publishGenerationCall(_characterId, _generationId) {
+export async function publishGenerationCall(
+    _characterId,
+    _generationId,
+    _ipfsLink
+) {
     const contract = await getRegistryContract(true);
-    const tx = await contract.publishPost(_characterId, _generationId);
+    const tx = await contract.publishGeneration(
+        _characterId,
+        _generationId,
+        _ipfsLink
+    );
     await tx.wait();
-    console.log("Character created")
+    await fetchAllCharacters()
+    console.log("Character created");
 }
-
-// export async function pushStreamIdCall(_streamId) {
-//     const contract = await getRegistryContract(true);
-//     const tx = await contract.pushStreamId(_streamId);
-//     await tx.wait();
-// }
-
-
-// export async function createModelGenAccountCreation(_name, _prompt, image) {
-//     const uri = await createModelURI(_name, _prompt, image);
-//     const contract = await getRegistryContract(true);
-//     const tx = await contract.createModel(uri);
-//     await tx.wait();
-//     await fetchAllModels();
-//     console.log("Account Created successfully");
-// }
-
-// export async function createStaticContentGeneration(
-//     _prompt,
-//     _productImage,
-//     image,
-//     tba
-// ) {
-//     const _modelId = await getModelIdByTBA(tba);
-//     const uri = await createContentURI(_productImage, _prompt, image, tba);
-//     console.log(_modelId, uri);
-
-//     const contract = await getRegistryContract(true);
-//     // const tx = await contract.callImageAdGen(_modelId, uri);
-//     const tx = await contract.callContentGen(_modelId, uri);
-//     await tx.wait();
-//     console.log("Content Created successfully");
-// }
-
-// export async function listForSale(modelId, _price) {
-//     const nftContract = await getNftURIContract();
-//     const approve = await nftContract.approve(registryAddress, modelId);
-//     console.log("_price", _price);
-//     const price = ethers.utils.parseEther(_price);
-//     const contract = await getRegistryContract(true);
-//     const tx = await contract.listModelForSale(modelId, price);
-//     await approve.wait();
-//     await tx.wait();
-//     console.log("Listed successfully");
-// }
-
-// export async function buyModel(modelId, _price) {
-//     const weiPrice = ethers.utils.parseUnits(_price.toString(), "ether");
-//     const contract = await getRegistryContract(true);
-//     const tx = await contract.buyModel(modelId, {
-//         value: weiPrice,
-//         gasLimit: 1000000,
-//     });
-//     await tx.wait();
-//     console.log("Listed successfully");
-// }
 
 // --------- Contract Fetching
 
+export async function getCharacterURIFromId(_characterId) {
+    const user = await getUserAddress();
+    const contract = await getRegistryContract();
+    console.log(_characterId, user)
+    const data = await contract.fetchCharacterURI(_characterId, user);
+    return data;
+}
+
 export async function fetchAllCharacters() {
-    // if (allModels.length > 0) return allModels;
+    if (allCharacters.length > 0) return allCharacters;
 
-    const user = await getUserAddress()
-
+    const user = await getUserAddress();
     const contract = await getRegistryContract();
 
     const data = await contract.fetchAllCharacters(user);
-    console.log("data", data)
+    // console.log("data", data)
     const items = await Promise.all(
         data.map(async (i) => {
-            // const metadata = await axios.get(data.uri);
-            // let price = ethers.utils.formatEther(i.price);
             let item = {
                 characterId: i.characterId.toNumber(),
                 characterName: i.characterName.toString(),
                 uri: i.uri.toString(),
                 isSale: i.isSale.toString(),
                 _price: i._price.toNumber(),
-                // name: metadata.data._name,
-                // prompt: metadata.data._prompt,
-                // modelImg: metadata.data.image,
-                // price,
-                // sale: i.sale,
-                // metadata,
             };
             return item;
         })
     );
 
-    // console.log("3");
-
-    allModels = items;
+    allCharacters = items;
     console.log("All Characters", items);
     return items;
 }
 
+export async function fetchAllGenerations() {
+    if (generations.length > 0) return generations;
 
-// export async function getTokensURI(address, id) {
-//     const contract = await getNftURIContract(address);
-//     const uri = await contract.tokenURI(id);
-//     // console.log("uri", uri)
-//     return uri;
-// }
+    const contract = await getRegistryContract();
+    const charactersArray = await fetchAllCharacters()
 
-// async function fetch(user) {
-//     const options = {
-//         method: "GET",
-//         url: `https://deep-index.moralis.io/api/v2/${user}/nft`,
-//         params: { chain: "mumbai", format: "hex", normalizeMetadata: "false" },
-//         headers: {
-//             accept: "application/json",
-//             "X-API-Key":
-//                 "ECu9sgtiXTgwMKEoJCg0xkjXfwm2R3NhOAATMBiTNIQoIzd7cAmeBibctzQyLkvY",
-//         },
-//     };
+    generations = await gensArr(charactersArray)
+  
+    async function gensArr(arr) {
+        let gens = [];
+        await Promise.all(arr.map(async (character) => {
+            const generationByCharacter = await contract.fetchAllGenerations(
+                character.characterId
+                );
 
-//     const data = await axios.request(options);
-//     const res = await data.data.result;
-//     console.log("res", res);
-//     return res;
-// }
+            const subItems = await Promise.all(
+                generationByCharacter.map(async (i) => {
+                    let item = {
+                        generationId: i.generationId.toNumber(),
+                        characterId: i.characterId.toNumber(),
+                        isPosted: i.isPosted.toString(),
+                        streamId: i.streamId.toString(),
+                    };
+                    return item;
+                    
+                })
 
+            )
+            gens.push(...subItems);
+        }))
+        return gens
+    }
 
+    console.log("Generations: ", generations);
+    return generations;
+}
 
-// export async function getModelImageFromTBA(tba) {
-//     let result;
-//     allModels.filter((e) => {
-//         if (e.tba == tba) {
-//             console.log("modelId inside using e.modelid", e.modelId);
-//             result = e.modelImg;
-//             console.log("result inside the if block", result);
-//         }
-//         console.log("modelId out of e block", result);
-//     });
-//     console.log("result outside e fn", result);
-//     return result;
-// }
-
-// export async function getModelIdByTBA(tba) {
-//     let result;
-//     allModels.filter((e) => {
-//         if (e.tba == tba) {
-//             console.log("modelId inside using e.modelid", e.modelId);
-//             result = e.modelId;
-//             console.log("result inside the if block", result);
-//         }
-//         console.log("modelId out of e block", result);
-//     });
-//     console.log("result outside e fn", result);
-//     return result;
-// }
-
-// export async function getContentByModelId(modelId) {
-//     const address = await getTBAFromModelId(modelId);
-//     const data = await fetch(address);
-//     console.log(data);
-//     return data;
-// }
-
-// export async function getContentByTBA(tba) {
-//     const data = await fetch(tba);
-//     console.log(data);
-//     return data;
-// }
-
-// export async function getTBAFromModelId(modelId) {
-//     const contract = await getRegistryContract();
-//     const data = await contract.idToModelAcc(modelId);
-//     console.log(data[0]);
-//     return data[0];
-// }
-
-// export async function fetchAllModels() {
-//     if (allModels.length > 0) return allModels;
-
-//     const contract = await getRegistryContract();
-
-//     const modelGenAddress = await getModelGenAddress();
-//     const modelGenContract = await getModelGenContract(false, modelGenAddress);
-
-//     const data = await contract.fetchAllModel();
-//     // console.log("data", data)
-//     const items = await Promise.all(
-//         data.map(async (i) => {
-//             const metadataUrl = await modelGenContract.tokenURI(
-//                 i.modelId.toNumber()
-//             );
-//             const metadata = await axios.get(metadataUrl);
-//             let price = ethers.utils.formatEther(i.price);
-//             let item = {
-//                 name: metadata.data._name,
-//                 prompt: metadata.data._prompt,
-//                 modelImg: metadata.data.image,
-//                 tba: i.tba.toString(),
-//                 imgAdGen: i.imgAdGen.toString(),
-//                 modelId: i.modelId.toNumber(),
-//                 creator: i.creator.toString(),
-//                 owner: i.owner.toString(),
-//                 price,
-//                 sale: i.sale,
-//                 // metadata,
-//             };
-//             return item;
-//         })
-//     );
-
-//     console.log("3");
-
-//     allModels = items;
-//     console.log("All Models", items);
-//     return items;
-// }
-
-// export async function fetchMarketplaceModels() {
-//     if (allModels.length > 0) {
-//         const filteredArray = allModels.filter(
-//             (subarray) => subarray.sale == true
-//         );
-//         return filteredArray;
-//     } else {
-//         const data = await fetchAllModels();
-//         const filteredArray = data.filter((subarray) => subarray.sale == true);
-//         return filteredArray;
-//     }
-// }
-
-// export async function fetchMyModels() {
-//     const data = await fetchAllModels();
-//     return data;
-
-//     // const me = await getUserAddress();
-//     // me.toString().toLowerCase();
-//     // const data = await fetchAllModels();
-//     // const filteredArray = data.filter((subarray) => {
-//     //     subarray.owner.toLowerCase();
-//     //     console.log("me", me);
-//     //     console.log("val", subarray.owner)
-//     //     subarray.owner === me;
-//     // });
-
-//     // return filteredArray
-
-//     // if (allModels.length > 0) {
-//     //     const filteredArray = allModels.filter((subarray) => {
-//     //         subarray.owner.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-//     //         subarray.owner === me.toString();
-//     //     });
-//     //     return filteredArray;
-//     // } else {
-//     //     const data = await fetchAllModels();
-//     //     const filteredArray = data.filter((subarray) => {
-//     //         let val = subarray.owner
-//     //         val.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-//     //         console.log("val", val)
-//     //         val.toString() === me.toString();
-//     //     });
-//     //     return filteredArray;
-//     // }
-// }
+export async function fetchPosts() {
+    // console.log("1", generations);
+    if (generations.length > 0) {
+        const filteredArray = generations.filter(
+            (subarray) => subarray.isPosted == "true"
+        );
+        // console.log("2", filteredArray);
+        return filteredArray;
+    } else {
+        const data = await fetchAllGenerations();
+        // console.log("3", data);
+        const filteredArray = data.filter(
+            (subarray) => subarray.isPosted == "true"
+        );
+        return filteredArray;
+    }
+}
 
 // --------- IPFS Instance
 

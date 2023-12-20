@@ -2,10 +2,12 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { fetchAllCharacters, loadWithDataverse } from "@/utils";
+import { fetchPosts, getCharacterURIFromId, loadWithDataverse } from "@/utils";
 import { useEffect, useState } from "react";
 import SideBar from "@/components/SideBar";
 import NavBar from "@/components/NavBar";
+import axios from "axios";
+import { saveAs } from "file-saver";
 // import ChatButton from "@/components/ChatButton";
 // import { getUserAddress } from "@/utils";
 
@@ -18,32 +20,34 @@ const FetchModels = () => {
     }, []);
 
     async function fetchAllModelsData() {
-        const results = await fetchAllCharacters();
+        const results = await fetchPosts();
         setData(results);
+    }
+
+    async function download(_fileName: any, _fileUrl: any) {
+        const name = _fileName;
+        const fileUrl = _fileUrl;
+        saveAs(fileUrl, name);
     }
 
     function LinkoCard({
         characterId,
-        characterName,
-        uri,
-        isSale,
-        _price,
+        streamId,
     }: {
         characterId: any;
-        characterName: any;
-        uri: any;
-        isSale: any;
-        _price: any;
+        streamId: any;
     }) {
         const [image, setImage] = useState("");
+        const [character, setCharacter] = useState({});
 
         useEffect(() => {
-            fetchURI();
+            fetchIpfsURI();
         }, []);
 
-        async function fetchURI() {
-            const result = await loadWithDataverse(uri);
-            setImage(result);
+        async function fetchIpfsURI() {
+            console.log("uri", streamId);
+            const res1 = await axios.get(streamId);
+            setImage(res1.data.ipfsLink);
         }
 
         return (
@@ -55,7 +59,7 @@ const FetchModels = () => {
                         <div className="flex">
                             <div>
                                 <p className="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                    Character Name: {characterName}
+                                    {/* Character Name: {characterName} */}
                                 </p>
                             </div>
                         </div>
@@ -65,6 +69,14 @@ const FetchModels = () => {
                                 Character Id: {characterId}
                             </p>
                             {/* <ChatButton sender={sender} receiver={owner}/> */}
+                            <button
+                            onClick={() => {
+                                download("output", image);
+                            }}
+                            className="h-[50px] w-[140px] inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                        >
+                            Download Model
+                        </button>
                         </div>
                     </div>
                 </div>
@@ -83,17 +95,14 @@ const FetchModels = () => {
                 </p> */}
                     <div className="mt-10">
                         <h1 className="font-bold text-3xl text-center">
-                            Characters
+                            Posts
                         </h1>
                     </div>
                     {data.map((item: any, i: any) => (
                         <LinkoCard
                             key={i}
                             characterId={item.characterId}
-                            characterName={item.characterName}
-                            uri={item.uri}
-                            isSale={item.isSale}
-                            _price={item._price}
+                            streamId={item.streamId}
                         />
                     ))}
                 </div>

@@ -1,9 +1,22 @@
-const mumbaiAddress = `0x5bdF94f5645f29CeC073F952abD948A88DB7A28b`
+const mumbaiAddress = `0xa40D94086727A6628676d9CbaD047fA4c668a92C`
 
 export const registryAddress = mumbaiAddress
 
 export const registryAbi = `
 [
+	{
+		"inputs": [],
+		"name": "characterId",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
 	{
 		"inputs": [
 			{
@@ -234,6 +247,11 @@ export const registryAbi = `
 				"internalType": "uint256",
 				"name": "_generationId",
 				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_streamId",
+				"type": "string"
 			}
 		],
 		"name": "publishGeneration",

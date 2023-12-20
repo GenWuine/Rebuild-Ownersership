@@ -19,7 +19,7 @@ export default function SideBar() {
                 <ul className="space-y-2 font-medium">
                     <li>
                         <Link
-                            href="/dashboard/createmodel"
+                            href="/dashboard/createaccount"
                             className={
                                 "flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 " +
                                 (isActive("/dashboard/createmodel")
@@ -70,23 +70,6 @@ export default function SideBar() {
                     </li>
                     <li>
                         <Link
-                            href="/dashboard/fetchgenerations"
-                            className={
-                                "flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 " +
-                                (isActive("/dashboard/nfts")
-                                    ? "bg-gray-700"
-                                    : "")
-                            }
-                        >
-                            <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
-                            <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
-                            <span className="flex-1 ml-3 whitespace-nowrap">
-                                Generations
-                            </span>
-                        </Link>
-                    </li>
-                    <li>
-                        <Link
                             href="/dashboard/fetchcharacters"
                             className={
                                 "flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 " +
@@ -98,13 +81,13 @@ export default function SideBar() {
                             <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
                             <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
                             <span className="flex-1 ml-3 whitespace-nowrap">
-                                All Characters
+                                See Characters
                             </span>
                         </Link>
                     </li>
                     <li>
                         <Link
-                            href="/dashboard/fetchcontentbyId"
+                            href="/dashboard/fetchgenerations"
                             className={
                                 "flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 " +
                                 (isActive("/dashboard/nfts")
@@ -115,7 +98,24 @@ export default function SideBar() {
                             <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
                             <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
                             <span className="flex-1 ml-3 whitespace-nowrap">
-                                All Post
+                                See Generations
+                            </span>
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            href="/dashboard/fetchpost"
+                            className={
+                                "flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 " +
+                                (isActive("/dashboard/nfts")
+                                    ? "bg-gray-700"
+                                    : "")
+                            }
+                        >
+                            <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
+                            <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
+                            <span className="flex-1 ml-3 whitespace-nowrap">
+                                See Post
                             </span>
                         </Link>
                     </li>
