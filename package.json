@@ -20,6 +20,7 @@
     "autoprefixer": "10.4.16",
     "aws-sdk": "^2.1516.0",
     "axios": "^1.6.2",
+    "console": "^0.7.2",
     "create-dataverse-app": "^1.0.12",
     "eslint": "8.55.0",
     "eslint-config-next": "14.0.4",

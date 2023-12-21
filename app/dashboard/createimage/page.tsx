@@ -18,11 +18,11 @@ const CreateContent = () => {
     const [loading, setLoading] = useState(false);
     const [formInput, setFormInput] = useState({
         productDescription: "a fizzy cold drink",
-        productImage: "https://ipfs.io/ipfs/bafybeibtrzoyaj4o2uae6jog5bovviatim5airp73g7gpiaf7daopjq5uu/GUEST_a0ca8b92-b8ef-4f37-9903-f103ace02e6e.png",
+        productImage:
+            "https://ipfs.io/ipfs/bafybeibtrzoyaj4o2uae6jog5bovviatim5airp73g7gpiaf7daopjq5uu/GUEST_a0ca8b92-b8ef-4f37-9903-f103ace02e6e.png",
         name: "Mountain Dew",
         id: "2",
         fineTunePrompt: "test-prompt",
-
     });
     const [imgLoading, setImgLoading] = useState(false);
     const [loaders, setLoaders] = useState({
@@ -33,58 +33,26 @@ const CreateContent = () => {
     const [generatedImage, setGeneratedImage] = useState("");
 
     async function callImageGenAPICall() {
-        setLoading(true)
+        setLoading(true);
 
-        // const imageLink = await callImageGenAPI(
-        //     formInput.productDescription,
-        //     formInput.productImage,
-        //     formInput.id,
-        //     formInput.name
-        // );
-
-        const imageLink = "https://imgs.search.brave.com/bgJsnos8NuXZO-MbgYid-8PGseiam1ag7u95MErLSVM/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9tLm1l/ZGlhLWFtYXpvbi5j/b20vaW1hZ2VzL00v/TVY1QlpURXhOekEx/TjJRdE5qVTBNaTAw/TlRGbExXSm1OalF0/WTJaaU9UaGhNV0Zr/T0dVMlhrRXlYa0Zx/Y0dkZVFWUm9hWEpr/VUdGeWRIbEpibWRs/YzNScGIyNVhiM0py/Wm14dmR3QEAuX1Yx/X1FMNzVfVVg1MDBf/Q1IwLDAsNTAwLDI4/MV8uanBn"
+        const imageLink = await callImageGenAPI(
+            formInput.productDescription,
+            formInput.productImage,
+            formInput.id,
+            formInput.name
+        );
+        // const imageLink = "https://imgs.search.brave.com/bgJsnos8NuXZO-MbgYid-8PGseiam1ag7u95MErLSVM/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9tLm1l/ZGlhLWFtYXpvbi5j/b20vaW1hZ2VzL00v/TVY1QlpURXhOekEx/TjJRdE5qVTBNaTAw/TlRGbExXSm1OalF0/WTJaaU9UaGhNV0Zr/T0dVMlhrRXlYa0Zx/Y0dkZVFWUm9hWEpr/VUdGeWRIbEpibWRs/YzNScGIyNVhiM0py/Wm14dmR3QEAuX1Yx/X1FMNzVfVVg1MDBf/Q1IwLDAsNTAwLDI4/MV8uanBn"
 
         setGeneratedImage(imageLink);
         setLoading(false);
-
-        // const streamId = uploadWithDataverse(imageLink)
-        // await pushStreamIdCall(streamId)
-
-
-        // const dataFormation = {
-        //     description: formInput.productDescription, 
-        //     image: formInput.productImage,
-        //     id: formInput.id,
-        //     name: formInput.name
-        // }
-
-        // const data = JSON.stringify({             formInput.productDescription,
-        //     formInput.productImage,
-        //     formInput.id,
-        //     formInput.name });
-
-        // const files = [new File([dataFormation], "data.json")];
-
-        // const metaCID = await uploadToIPFS(files);
-        // const url = `https://ipfs.io/ipfs/${metaCID}/data.json`;
-
-        // const arrayFormation = [url] 
-
     }
 
     async function createGeneration() {
         setLoaders((e) => ({ ...e, createAccountLoader: true }));
 
-        const streamId = await uploadToDataverse(generatedImage)
+        const streamId = await uploadToDataverse(generatedImage);
 
-        await createGenerationCall(
-            formInput.id,
-            streamId
-            // formInput.productDescription,
-            // formInput.productImage,
-            // generatedImage,
-            // formInput.id
-            );
+        await createGenerationCall(formInput.id, streamId);
 
         toast.success("Generation published to your account!", {
             position: "bottom-left",
@@ -109,8 +77,11 @@ const CreateContent = () => {
 
     async function fineTuneCall() {
         setLoaders((e) => ({ ...e, fineTuneLoader: true }));
-        const results = await callFineTuneAPI(generatedImage, formInput.fineTunePrompt)
-        console.log(results)
+        const results = await callFineTuneAPI(
+            generatedImage,
+            formInput.fineTunePrompt
+        );
+        console.log(results);
 
         setLoaders((e) => ({ ...e, fineTuneLoader: false }));
     }
@@ -194,14 +165,12 @@ const CreateContent = () => {
                                             onChange={(e) => {
                                                 setFormInput({
                                                     ...formInput,
-                                                    name:
-                                                        e.target.value,
+                                                    name: e.target.value,
                                                 });
                                             }}
                                         />
                                     </div>
                                 </div>
-
 
                                 <div className="flex">
                                     <div className="w-[12%] justify-center flex-shrink-0 cursor-default z-10 inline-flex items-center py-4 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-l-lg focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700  dark:focus:ring-gray-700 dark:text-gray-400 dark:border-gray-600">

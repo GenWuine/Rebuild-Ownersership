@@ -47,7 +47,7 @@ def read_root():
 
 
 
-
+#http://127.0.0.1:3000/generate-model-img/
 
 @app.route("/generate-model-img/", methods=["POST"])
 @cross_origin(allow_headers=['Content-Type'])
@@ -102,4 +102,4 @@ def upload_to_s3(image_content, model_description):
         raise e
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True,port=3000)

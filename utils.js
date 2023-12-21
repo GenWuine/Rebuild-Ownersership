@@ -9,6 +9,7 @@ import {
     SYSTEM_CALL,
     RESOURCE,
 } from "@dataverse/dataverse-connector";
+import { timeStamp } from "console";
 
 let allCharacters = [];
 let generations = [];
@@ -52,7 +53,7 @@ export async function getUserAddress() {
 // --------- APIs
 
 export async function callCharacterGenAPI(_prompt) {
-    const apiUrl = "https://modelgen.pythonanywhere.com/generate-model-img/";
+    const apiUrl = "http://127.0.0.1:3000/generate-model-img/";
     try {
         const payload = {
             description: _prompt,
@@ -60,7 +61,9 @@ export async function callCharacterGenAPI(_prompt) {
 
         console.log("payload", payload);
 
+        console.log("requested", timeStamp)
         const response = await axios.post(apiUrl, payload);
+        console.log("fallback", timeStamp)
         console.log(response.data.s3_public_url);
         return response.data.s3_public_url;
     } catch (error) {
@@ -99,7 +102,7 @@ export async function callImageGenAPI(_prompt, _productImage, _id, _name) {
 export async function callVideoGenAPI(_productName, _prompt, tba, _gender) {
     const _modelImage = await getModelImageFromTBA(tba);
 
-    const apiUrl = "http://127.0.0.1:5000/generate-vid/";
+    const apiUrl = "https://videogen.pythonanywhere.com/generate-vid/";
     try {
         const payload = {
             product_name: _productName,

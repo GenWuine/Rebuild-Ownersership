@@ -19,7 +19,6 @@ const CreateModel = () => {
         fineTuned: false,
     });
 
-    // const [loading, setLoading] = useState(false);
     const [loaders, setLoaders] = useState({
         generateLoader: false,
         fineTuneLoader: false,
@@ -38,8 +37,8 @@ const CreateModel = () => {
     async function modelGenImageGenerationCall() {
         setLoaders((e) => ({ ...e, generateLoader: true }));
 
-        // const image = await callCharacterGenAPI(formInput.modelPrompt);
-        const image = "https://imgs.search.brave.com/bgJsnos8NuXZO-MbgYid-8PGseiam1ag7u95MErLSVM/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9tLm1l/ZGlhLWFtYXpvbi5j/b20vaW1hZ2VzL00v/TVY1QlpURXhOekEx/TjJRdE5qVTBNaTAw/TlRGbExXSm1OalF0/WTJaaU9UaGhNV0Zr/T0dVMlhrRXlYa0Zx/Y0dkZVFWUm9hWEpr/VUdGeWRIbEpibWRs/YzNScGIyNVhiM0py/Wm14dmR3QEAuX1Yx/X1FMNzVfVVg1MDBf/Q1IwLDAsNTAwLDI4/MV8uanBn"
+        const image = await callCharacterGenAPI(formInput.modelPrompt);
+        // const image = "https://imgs.search.brave.com/bgJsnos8NuXZO-MbgYid-8PGseiam1ag7u95MErLSVM/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9tLm1l/ZGlhLWFtYXpvbi5j/b20vaW1hZ2VzL00v/TVY1QlpURXhOekEx/TjJRdE5qVTBNaTAw/TlRGbExXSm1OalF0/WTJaaU9UaGhNV0Zr/T0dVMlhrRXlYa0Zx/Y0dkZVFWUm9hWEpr/VUdGeWRIbEpibWRs/YzNScGIyNVhiM0py/Wm14dmR3QEAuX1Yx/X1FMNzVfVVg1MDBf/Q1IwLDAsNTAwLDI4/MV8uanBn"
         setGeneratedImage(image);
 
         setLoaders((e) => ({ ...e, generateLoader: false }));
@@ -73,11 +72,6 @@ const CreateModel = () => {
             formInput.fineTunePrompt
         );
 
-        // const results = await fetchDeadLink()
-
-        // formInput.fineTuned = true;
-
-        // console.log(results);
 
         toast.success("Tuned Output Generated!", {
             position: "bottom-left",
@@ -268,39 +262,6 @@ const CreateModel = () => {
                             )}
                         </div>
                     </div>
-
-                    {/* fine tune outputs */}
-                    {/* <div className="mx-[12%] mt-[2%]">
-                        <h1 className="font-bold text-xl ">
-                            Fine Tune Outputs
-                        </h1>
-                        <div className="flex gap-4 text-white w-[100%] px-4 box-background pt-4 pb-5 rounded-xl">
-                        <div className="flex flex-col items-center">
-                                <img src={fineTuneResults.img1} width="300px" />
-                                <button className="flex mt-2 w-[50%] justify-center py-4 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                    Select
-                                </button>
-                            </div>
-                            <div className="flex flex-col items-center">
-                                <img src={fineTuneResults.img1} width="300px" />
-                                <button className="flex mt-2 w-[50%] justify-center py-4 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                    Select
-                                </button>
-                            </div>
-                            <div className="flex flex-col items-center">
-                                <img src={fineTuneResults.img1} width="300px" />
-                                <button className="flex mt-2 w-[50%] justify-center py-4 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                    Select
-                                </button>
-                            </div>
-                            <div className="flex flex-col items-center">
-                                <img src={fineTuneResults.img1} width="300px" />
-                                <button className="flex mt-2 w-[50%] justify-center py-4 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                    Select
-                                </button>
-                            </div>
-                        </div>
-                    </div> */}
 
                 </div>
             </div>

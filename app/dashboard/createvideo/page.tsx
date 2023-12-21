@@ -1,11 +1,11 @@
 "use client";
 
 import {
-    callStaticContentGenAPI,
-    createStaticContentGeneration,
+    callVideoGenAPI,
     callFineTuneAPI,
+    createGenerationCall,
     uploadToIPFS,
-    callDynamicContentGenAPI,
+    uploadToDataverse,
 } from "@/utils";
 import NavBar from "@/components/NavBar";
 import SideBar from "@/components/SideBar";
@@ -21,7 +21,7 @@ const CreateVideo = () => {
     const [formInput, setFormInput] = useState({
         name: "Mountain Dew",
         prompt: "a fizzy cold drink",
-        tba: "0x7779DB07fb8C95bc3c58818a23D5d771DEB9c354",
+        id: "2",
         gender: "female",
     });
     const [imgLoading, setImgLoading] = useState(false);
@@ -30,17 +30,15 @@ const CreateVideo = () => {
         fineTuneLoader: false,
         createAccountLoader: false,
     });
-    const [generatedVideo, setGeneratedVideo] = useState(
-        ""
-    );
+    const [generatedVideo, setGeneratedVideo] = useState("");
 
-    async function contentGenVideoGenerationCall() {
+    async function callVideoGenAPICall() {
         setLoading(true);
 
-        const video = await callDynamicContentGenAPI(
+        const video = await callVideoGenAPI(
             formInput.name,
             formInput.prompt,
-            formInput.tba,
+            formInput.id,
             formInput.gender
         );
 
@@ -50,14 +48,11 @@ const CreateVideo = () => {
 
     async function contentGenCreationCall() {
         setLoaders((e) => ({ ...e, createAccountLoader: true }));
-        await createStaticContentGeneration(
-            null,
-            formInput.prompt,
-            generatedVideo,
-            formInput.tba
-        );
 
-        // initialize xmtp
+        const streamId = await uploadToDataverse(generatedVideo);
+
+        await createGenerationCall(formInput.id, streamId);
+
         toast.success("Content Published to TBA!", {
             position: "bottom-left",
             autoClose: 5000,
@@ -181,7 +176,7 @@ const CreateVideo = () => {
                                 <div className="flex justify-end">
                                     <button
                                         className="flex w-[14%] justify-center py-4 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                        onClick={contentGenVideoGenerationCall}
+                                        onClick={callVideoGenAPICall}
                                     >
                                         {/* <span className="sr-only">Search</span> */}
 

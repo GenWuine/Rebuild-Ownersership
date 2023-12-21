@@ -6,7 +6,7 @@ payload = {
 }
 
 # API endpoint URL
-url = "https://modelgen.pythonanywhere.com/generate-model-img/"
+url = "http://127.0.0.1:3000/generate-model-img/"
 
 # Making a POST request
 response = requests.post(url, json=payload)
