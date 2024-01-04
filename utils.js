@@ -13,12 +13,9 @@ import { timeStamp } from "console";
 
 let allCharacters = [];
 let generations = [];
-// let allGenerations = [];
-// let generations = [];
 
-// fetchAllCharacters();
+fetchAllCharacters();
 
-// fetchallCharacters();
 
 // --------- Contract Instance
 
@@ -53,22 +50,24 @@ export async function getUserAddress() {
 // --------- APIs
 
 export async function callCharacterGenAPI(_prompt) {
-    const apiUrl = "http://127.0.0.1:3000/generate-model-img/";
+    // const apiUrl = "http://127.0.0.1:3000/generate-model-img/";
+    const apiUrl = "https://generations-zvglklnxya-em.a.run.app/character"
     try {
         const payload = {
-            description: _prompt,
+            mod_description: _prompt,
         };
 
         console.log("payload", payload);
 
-        console.log("requested", timeStamp)
+        console.log("requested")
         const response = await axios.post(apiUrl, payload);
-        console.log("fallback", timeStamp)
+        console.log("fallback")
+        
         console.log(response.data.s3_public_url);
         return response.data.s3_public_url;
     } catch (error) {
-        console.error("Error fetching cat data:", error.message);
-        return null;
+        console.error("consoling character gen error", error);
+        return null; 
     }
 }
 
@@ -79,13 +78,13 @@ export async function callImageGenAPI(_prompt, _productImage, _id, _name) {
 
     console.log("model image", _modelImage);
 
-    const apiUrl = "https://adgen.pythonanywhere.com/generate-ad-poster/";
+    const apiUrl = "https://generations-zvglklnxya-em.a.run.app/image";
     try {
         const payload = {
-            name: _name,
-            description: _prompt,
-            url1: _modelImage,
-            url2: _productImage,
+            ad_product_name: _name,
+            ad_product_description: _prompt,
+            image_url1: _modelImage,
+            image_url2: _productImage,
         };
 
         console.log("payload", payload);
@@ -94,20 +93,22 @@ export async function callImageGenAPI(_prompt, _productImage, _id, _name) {
         console.log("response", response);
         return response.data.s3_public_url;
     } catch (error) {
-        console.error("Error fetching cat data:", error.message);
+        console.error("consoling image gen error", error);
         return null;
     }
 }
 
-export async function callVideoGenAPI(_productName, _prompt, tba, _gender) {
-    const _modelImage = await getModelImageFromTBA(tba);
+export async function callVideoGenAPI(_productName, _prompt, _id, _gender) {
 
-    const apiUrl = "https://videogen.pythonanywhere.com/generate-vid/";
+    const streamId = allCharacters[_id - 1].uri;
+    const _modelImage = await loadWithDataverse(streamId);
+
+    const apiUrl = "https://generations-zvglklnxya-em.a.run.app/video";
     try {
         const payload = {
+            model_image: _modelImage,
             product_name: _productName,
             product_description: _prompt,
-            model_img: _modelImage,
             model_gender: _gender,
         };
 
@@ -117,13 +118,13 @@ export async function callVideoGenAPI(_productName, _prompt, tba, _gender) {
         console.log(response);
         return response.data.result;
     } catch (error) {
-        console.error("Error fetching: ", error.message);
+        console.error("consoling video gen error", error);
         return null;
     }
 }
 
 export async function callFineTuneAPI(_generatedImage, _prompt) {
-    const apiUrl = "http://127.0.0.1:5000/generate-imgtoimg/";
+    const apiUrl = "https://generations-zvglklnxya-em.a.run.app/finetune";
     try {
         const payload = {
             image_url: _generatedImage,
@@ -132,11 +133,11 @@ export async function callFineTuneAPI(_generatedImage, _prompt) {
 
         console.log("payload", payload);
 
-        const res1 = await axios.post(apiUrl, payload);
-        console.log("res1", res1);
-        return res1;
+        const response = await axios.post(apiUrl, payload);
+        console.log("res1", response);
+        return response.data.s3_public_url[0];
     } catch (error) {
-        console.error("Error fetching cat data:", error.message);
+        console.error("consoling fine tune gen error", error);
         return null;
     }
 }

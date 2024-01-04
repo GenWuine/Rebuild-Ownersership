@@ -58,7 +58,9 @@ const FetchModels = () => {
         }
 
         async function fetchIpfsURI() {
+            console.log("uri hove yo")
             const res1 = await axios.get(streamId);
+            console.log("res1", res1)
             setImage(res1.data.ipfsLink);
         }
 

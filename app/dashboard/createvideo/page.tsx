@@ -19,8 +19,8 @@ import { saveAs } from "file-saver";
 const CreateVideo = () => {
     const [loading, setLoading] = useState(false);
     const [formInput, setFormInput] = useState({
-        name: "Mountain Dew",
-        prompt: "a fizzy cold drink",
+        name: "Macbook",
+        prompt: "Protein powder",
         id: "2",
         gender: "female",
     });
@@ -32,15 +32,23 @@ const CreateVideo = () => {
     });
     const [generatedVideo, setGeneratedVideo] = useState("");
 
+    function delay(ms: any) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+
     async function callVideoGenAPICall() {
         setLoading(true);
 
-        const video = await callVideoGenAPI(
-            formInput.name,
-            formInput.prompt,
-            formInput.id,
-            formInput.gender
-        );
+        // const video = await callVideoGenAPI(
+        //     formInput.name,
+        //     formInput.prompt,
+        //     formInput.id,
+        //     formInput.gender
+        // );
+
+        await delay(12000)
+
+        const video = "https://bucketforadgen.s3.ap-south-1.amazonaws.com/replicate-prediction-abhho7rbi7jbhcjgcgevetlxgy.mp4"
 
         setGeneratedVideo(video);
         setLoading(false);
@@ -133,19 +141,19 @@ const CreateVideo = () => {
 
                                 <div className="flex">
                                     <div className="w-[12%] justify-center flex-shrink-0 cursor-default z-10 inline-flex items-center py-4 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-l-lg focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700  dark:focus:ring-gray-700 dark:text-gray-400 dark:border-gray-600">
-                                        <p>TBA</p>
+                                        <p>Id</p>
                                     </div>
                                     <div className="relative w-full">
                                         <input
                                             type="search"
                                             className="block p-4 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-r-lg border-l-gray-50 border-l-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-l-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
-                                            placeholder="Enter your TBA Address"
+                                            placeholder="Enter your Character Id"
                                             required
-                                            value={formInput.tba}
+                                            value={formInput.id}
                                             onChange={(e) => {
                                                 setFormInput({
                                                     ...formInput,
-                                                    tba: e.target.value,
+                                                    id: e.target.value,
                                                 });
                                             }}
                                         />

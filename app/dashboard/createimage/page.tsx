@@ -1,7 +1,6 @@
 "use client";
 
 import {
-    // callStaticContentGenAPI,
     callImageGenAPI,
     callFineTuneAPI,
     createGenerationCall,
@@ -17,9 +16,9 @@ import "react-toastify/dist/ReactToastify.css";
 const CreateContent = () => {
     const [loading, setLoading] = useState(false);
     const [formInput, setFormInput] = useState({
-        productDescription: "a fizzy cold drink",
+        productDescription: "Apple's latest macbook with m5 chip",
         productImage:
-            "https://ipfs.io/ipfs/bafybeibtrzoyaj4o2uae6jog5bovviatim5airp73g7gpiaf7daopjq5uu/GUEST_a0ca8b92-b8ef-4f37-9903-f103ace02e6e.png",
+            "https://bucketforadgen.s3.ap-south-1.amazonaws.com/lapto.png",
         name: "Mountain Dew",
         id: "2",
         fineTunePrompt: "test-prompt",
@@ -41,7 +40,6 @@ const CreateContent = () => {
             formInput.id,
             formInput.name
         );
-        // const imageLink = "https://imgs.search.brave.com/bgJsnos8NuXZO-MbgYid-8PGseiam1ag7u95MErLSVM/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9tLm1l/ZGlhLWFtYXpvbi5j/b20vaW1hZ2VzL00v/TVY1QlpURXhOekEx/TjJRdE5qVTBNaTAw/TlRGbExXSm1OalF0/WTJaaU9UaGhNV0Zr/T0dVMlhrRXlYa0Zx/Y0dkZVFWUm9hWEpr/VUdGeWRIbEpibWRs/YzNScGIyNVhiM0py/Wm14dmR3QEAuX1Yx/X1FMNzVfVVg1MDBf/Q1IwLDAsNTAwLDI4/MV8uanBn"
 
         setGeneratedImage(imageLink);
         setLoading(false);
@@ -77,6 +75,7 @@ const CreateContent = () => {
 
     async function fineTuneCall() {
         setLoaders((e) => ({ ...e, fineTuneLoader: true }));
+
         const results = await callFineTuneAPI(
             generatedImage,
             formInput.fineTunePrompt

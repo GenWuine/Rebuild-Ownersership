@@ -1,4 +1,5 @@
 "use client";
+
 import {
     callCharacterGenAPI,
     createCharacterCall,
@@ -14,8 +15,8 @@ import "react-toastify/dist/ReactToastify.css";
 const CreateModel = () => {
     const [formInput, setFormInput] = useState({
         modelName: "test-name",
-        modelPrompt: "schoolgirl in a white t-shirt",
-        fineTunePrompt: "change the girl's hairstyle",
+        modelPrompt: "girl with spectacles",
+        fineTunePrompt: "remove girl's spectacle",
         fineTuned: false,
     });
 
@@ -27,18 +28,18 @@ const CreateModel = () => {
 
     const [generatedImage, setGeneratedImage] = useState("");
 
-    const [fineTuneResults, setFineTuneResults] = useState({
-        img1: "https://bucketforadgen.s3.amazonaws.com/schoolgirl_in_a_white_t-shirt_model_img.png",
-        img2: "",
-        img3: "",
-        img4: "",
-    });
+    // const [fineTuneResults, setFineTuneResults] = useState({
+    //     img1: "",
+    //     img2: "",
+    //     img3: "",
+    //     img4: "",
+    // });
 
     async function modelGenImageGenerationCall() {
         setLoaders((e) => ({ ...e, generateLoader: true }));
-
+        
         const image = await callCharacterGenAPI(formInput.modelPrompt);
-        // const image = "https://imgs.search.brave.com/bgJsnos8NuXZO-MbgYid-8PGseiam1ag7u95MErLSVM/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9tLm1l/ZGlhLWFtYXpvbi5j/b20vaW1hZ2VzL00v/TVY1QlpURXhOekEx/TjJRdE5qVTBNaTAw/TlRGbExXSm1OalF0/WTJaaU9UaGhNV0Zr/T0dVMlhrRXlYa0Zx/Y0dkZVFWUm9hWEpr/VUdGeWRIbEpibWRs/YzNScGIyNVhiM0py/Wm14dmR3QEAuX1Yx/X1FMNzVfVVg1MDBf/Q1IwLDAsNTAwLDI4/MV8uanBn"
+
         setGeneratedImage(image);
 
         setLoaders((e) => ({ ...e, generateLoader: false }));
@@ -48,7 +49,6 @@ const CreateModel = () => {
         setLoaders((e) => ({ ...e, createAccountLoader: true }));
 
         const uri = uploadToDataverse(generatedImage)
-        // const uri = "https://imgs.search.brave.com/bgJsnos8NuXZO-MbgYid-8PGseiam1ag7u95MErLSVM/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9tLm1l/ZGlhLWFtYXpvbi5j/b20vaW1hZ2VzL00v/TVY1QlpURXhOekEx/TjJRdE5qVTBNaTAw/TlRGbExXSm1OalF0/WTJaaU9UaGhNV0Zr/T0dVMlhrRXlYa0Zx/Y0dkZVFWUm9hWEpr/VUdGeWRIbEpibWRs/YzNScGIyNVhiM0py/Wm14dmR3QEAuX1Yx/X1FMNzVfVVg1MDBf/Q1IwLDAsNTAwLDI4/MV8uanBn"
         await createCharacterCall(uri, formInput.modelName);
 
         toast.success("GenHub Character Created!", {
@@ -72,6 +72,9 @@ const CreateModel = () => {
             formInput.fineTunePrompt
         );
 
+        // setFineTuneResults({...fineTuneResults, img1: results})
+
+        setGeneratedImage(results)
 
         toast.success("Tuned Output Generated!", {
             position: "bottom-left",
