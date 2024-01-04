@@ -18,7 +18,7 @@ const CreateContent = () => {
     const [formInput, setFormInput] = useState({
         productDescription: "Apple's latest macbook with m5 chip",
         productImage:
-            "https://bucketforadgen.s3.ap-south-1.amazonaws.com/lapto.png",
+            "https://bucketforadgen.s3.ap-south-1.amazonaws.com/mountain-dew.png",
         name: "Mountain Dew",
         id: "2",
         fineTunePrompt: "test-prompt",
