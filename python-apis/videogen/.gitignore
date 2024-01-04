@@ -1,6 +1,0 @@
-#files to be ignored
-/cleanup
-/templates
-.vscode
-.env
-testhere.py
